@@ -29,7 +29,7 @@ FrontEnd::Create
  *
  */
 void
-FrontEnd::DestroyHW()
+FrontEnd::Destroy()
 {
     hw.DestroyDevice();
 }

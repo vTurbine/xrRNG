@@ -1,10 +1,11 @@
 #ifndef FACTORY_RAIN_RENDER_H_
 #define FACTORY_RAIN_RENDER_H_
 
-#include "Include/xrRender/RainRender.h"
+#include <Include/xrRender/RainRender.h>
 
 
-class fRainRender : public IRainRender
+class fRainRender
+    : public IRainRender
 {
 public:
     fRainRender() = default;

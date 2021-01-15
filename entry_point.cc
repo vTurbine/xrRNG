@@ -1,59 +1,107 @@
+#include "stdafx.h"
 
-#include "backend/backend.h"
-#include "console.h"
-#include "debug/render.h"
-#include "factory/factory.h"
+#include "console/console.h"
 #include "frontend/render.h"
-#include "resources/manager.h"
+#include "factory/factory.h"
 #include "ui/ui_render.h"
 
+#include <xrEngine/Engine.h>
+#include <xrEngine/EngineAPI.h>
+
+#include <volk/volk.h>
+
+
+namespace xrrng
+{
 
 /*!
  * Statically created objects
  */
-BackEnd         backend;
 FrontEnd        frontend;
-ResourceManager resources;
 RenderFactory   factory;
-DebugRender     debug;
+UiRender        ui;
 
 
-/*
- * TODO:
- * Current implementation uses a static library provided by LunarG SDK.
- * It's a good idea to replace it by ptr calls using 3rd party loaders.
- *
- * E.g. https://github.com/zeux/volk
- */
-#pragma comment(lib, "vulkan-1")
+RENDERDOC_API_1_4_1 rdApi;
+constexpr pcstr RENDERER_NAME = "xrRNG";
+
+struct ModuleImpl final
+    : public RendererModule
+{
+    xr_vector<pcstr> const&
+    ObtainSupportedModes() final
+    {
+        static xr_vector<pcstr> modes{};
+
+        auto const result = volkInitialize();
+        if (result != VK_SUCCESS)
+        {
+            Msg("! Unable to initialize Vulkan loader. Make sure you have Vulkan runtime installed");
+            Msg("  See https://vulkan.lunarg.com/sdk/home for details");
+            return modes;
+        }
+
+        auto const apiVersion = volkGetInstanceVersion();
+        Msg("* Vulkan Instance ver. %d.%d.%d",
+        VK_VERSION_MAJOR(apiVersion),
+        VK_VERSION_MINOR(apiVersion),
+        VK_VERSION_PATCH(apiVersion));
+
+        if (apiVersion >= VK_API_VERSION_1_1)
+        {
+            modes.emplace_back(RENDERER_NAME);
+        }
+
+        return modes;
+    }
+
+    void
+    SetupEnv
+        ( pcstr mode
+        )
+        final
+    {
+#if VK_RENDERDOC_EN
+        if (HMODULE rdLib = GetModuleHandle("renderdoc.dll"))
+        {
+            auto RENDERDOC_GetAPI = reinterpret_cast<pRENDERDOC_GetAPI>(
+                GetProcAddress( rdLib
+                              , "RENDERDOC_GetAPI"
+                )
+            );
+            auto const ret = RENDERDOC_GetAPI( eRENDERDOC_API_Version_1_4_1
+                                       , reinterpret_cast<void **>(&rdApi)
+            );
+
+            if (ret != 1)
+            {
+                Msg("! [RVK] Failed to load RenderDoc API");
+            }
+        }
+#endif
+
+        GEnv.Render         = &frontend;
+        GEnv.RenderFactory  = &factory;
+        GEnv.DU             = nullptr;
+        GEnv.UIRender       = &ui;
+#ifdef DEBUG
+        GEnv.DRender        = nullptr;
+#endif
+        InitConsoleVK();
+    }
+};
+
+ModuleImpl module;
+
+}
 
 extern "C"
 {
-XR_EXPORT void SetupEnv()
+
+XR_EXPORT RendererModule *
+GetRendererModule()
 {
-    GEnv.Render         = &frontend;
-    GEnv.RenderFactory  = &factory;
-    GEnv.DU             = nullptr;
-    GEnv.UIRender       = &ui;
-#ifdef DEBUG
-    GEnv.DRender        = &debug;
-#endif
-    InitConsole();
+    return &xrrng::module;
 }
 
-XR_EXPORT pcstr GetModeName()
-{
-    return "renderer_vk";
-}
-
-XR_EXPORT bool CheckRendererSupport()
-{
-    const auto apiVersion = vk::enumerateInstanceVersion();
-    Msg( "* Vulkan Instance ver. %d.%d.%d"
-       , VK_VERSION_MAJOR(apiVersion)
-       , VK_VERSION_MINOR(apiVersion)
-       , VK_VERSION_PATCH(apiVersion)
-    );
-    return (apiVersion >= VK_API_VERSION_1_1);
-}
 }

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/console/render.h"
 
 
@@ -6,10 +7,10 @@
  */
 void
 fConsoleRender::Copy
-        ( IConsoleRender& obj
+        ( IConsoleRender &obj
         )
 {
-    *this = *((fConsoleRender *)&obj);
+    *this = *(static_cast<fConsoleRender *>(&obj));
 }
 
 

@@ -1,10 +1,11 @@
 #ifndef FACTORY_UI_SEQUENCE_VIDEO_ITEM_H_
 #define FACTORY_UI_SEQUENCE_VIDEO_ITEM_H_
 
-#include "Include/xrRender/UISequenceVideoItem.h"
+#include <Include/xrRender/UISequenceVideoItem.h>
 
 
-class fUISequenceVideoItem : public IUISequenceVideoItem
+class fUISequenceVideoItem
+    : public IUISequenceVideoItem
 {
 public:
     fUISequenceVideoItem() = default;

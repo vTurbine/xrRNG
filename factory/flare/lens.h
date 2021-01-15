@@ -1,10 +1,11 @@
 #ifndef FACTORY_FLARE_LENS_H_
 #define FACTORY_FLARE_LENS_H_
 
-#include "Include/xrRender/LensFlareRender.h"
+#include <Include/xrRender/LensFlareRender.h>
 
 
-class fLensFlareRender : public ILensFlareRender
+class fLensFlareRender
+    : public ILensFlareRender
 {
 public:
     fLensFlareRender() = default;

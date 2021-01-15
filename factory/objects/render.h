@@ -1,10 +1,11 @@
 #ifndef FACTORY_OBJECTS_RENDER_H_
 #define FACTORY_OBJECTS_RENDER_H_
 
-#include "Include/xrRender/ObjectSpaceRender.h"
+#include <Include/xrRender/ObjectSpaceRender.h>
 
 
-class fObjectSpaceRender : public IObjectSpaceRender
+class fObjectSpaceRender
+    : public IObjectSpaceRender
 {
 public:
     fObjectSpaceRender() = default;

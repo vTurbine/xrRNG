@@ -1,10 +1,11 @@
 #ifndef FACTORY_THUNDERBOLT_RENDER_H_
 #define FACTORY_THUNDERBOLT_RENDER_H_
 
-#include "Include/xrRender/ThunderboltRender.h"
+#include <Include/xrRender/ThunderboltRender.h>
 
 
-class fThunderboltRender : public IThunderboltRender
+class fThunderboltRender
+    : public IThunderboltRender
 {
 public:
     fThunderboltRender() = default;

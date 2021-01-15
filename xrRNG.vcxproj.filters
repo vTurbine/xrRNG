@@ -1,0 +1,189 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="entry_point.cc" />
+    <ClCompile Include="..\..\..\Externals\volk\volk.c">
+      <Filter>volk</Filter>
+    </ClCompile>
+    <ClCompile Include="console\console.cc">
+      <Filter>console</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\legacy.cc">
+      <Filter>legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\factory.cc">
+      <Filter>factory</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\ui\sequence_video_item.cc">
+      <Filter>factory\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\ui\shader.cc">
+      <Filter>factory\ui</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\console\render.cc">
+      <Filter>factory\console</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\environment\desc_mixer_render.cc">
+      <Filter>factory\environment</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\environment\desc_render.cc">
+      <Filter>factory\environment</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\environment\render.cc">
+      <Filter>factory\environment</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\flare\lens.cc">
+      <Filter>factory\flare</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\flare\render.cc">
+      <Filter>factory\flare</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\font\render.cc">
+      <Filter>factory\font</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\objects\render.cc">
+      <Filter>factory\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\rain\render.cc">
+      <Filter>factory\rain</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\thunderbolt\desc_render.cc">
+      <Filter>factory\thunderbolt</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\thunderbolt\render.cc">
+      <Filter>factory\thunderbolt</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\stats\stat_graph_render.cc">
+      <Filter>factory\stats</Filter>
+    </ClCompile>
+    <ClCompile Include="factory\wallmark\array.cc">
+      <Filter>factory\wallmark</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_render.cc">
+      <Filter>ui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="volk">
+      <UniqueIdentifier>{e9f102a3-2bb7-45b3-91a2-5732071e2824}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="console">
+      <UniqueIdentifier>{5cbd6865-6f15-48a4-9a82-faed36a77f73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="frontend">
+      <UniqueIdentifier>{7ab04f52-0abd-48f4-9877-b261f5a4d186}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="legacy">
+      <UniqueIdentifier>{d4d91294-dd27-4b80-aa99-a53ceb00d6e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory">
+      <UniqueIdentifier>{767d8e7c-3fcd-42fe-8d24-da7a1355d332}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\ui">
+      <UniqueIdentifier>{a9a2ce38-86ee-4eda-882b-256d7a1b6724}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\console">
+      <UniqueIdentifier>{860213b6-043e-42c5-8c02-9f7112e2e7f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\environment">
+      <UniqueIdentifier>{1532c2b6-6964-40a7-a47b-8288ffb8994d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\flare">
+      <UniqueIdentifier>{391ade74-5abc-4cc7-aef4-27d88f349c2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\font">
+      <UniqueIdentifier>{d16c92eb-e426-42f6-9f8a-f91cda85a60d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\objects">
+      <UniqueIdentifier>{72f7993a-e86e-4a4f-82c1-aa58cab35498}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\rain">
+      <UniqueIdentifier>{d4775f66-4464-419c-88bd-3d5ad32bb77c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\thunderbolt">
+      <UniqueIdentifier>{55a63c29-e30d-4cc2-b01c-1fcbcf769608}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\stats">
+      <UniqueIdentifier>{57349d68-5244-45ad-b05c-a68981264271}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="factory\wallmark">
+      <UniqueIdentifier>{81cb5ea6-27c0-4d99-b253-049b9397679b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{f09c197f-16be-4d09-a401-8c8cdde64dac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="legacy\raffle">
+      <UniqueIdentifier>{35ae16bd-8ab5-4ff0-91e6-47f7e5a4e530}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\Externals\volk\volk.h">
+      <Filter>volk</Filter>
+    </ClInclude>
+    <ClInclude Include="console\console.h">
+      <Filter>console</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="frontend\render.h">
+      <Filter>frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\legacy.h">
+      <Filter>legacy</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\factory.h">
+      <Filter>factory</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\ui\sequence_video_item.h">
+      <Filter>factory\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\ui\shader.h">
+      <Filter>factory\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\console\render.h">
+      <Filter>factory\console</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\environment\desc_mixer_render.h">
+      <Filter>factory\environment</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\environment\desc_render.h">
+      <Filter>factory\environment</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\environment\render.h">
+      <Filter>factory\environment</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\flare\lens.h">
+      <Filter>factory\flare</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\flare\render.h">
+      <Filter>factory\flare</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\font\render.h">
+      <Filter>factory\font</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\objects\render.h">
+      <Filter>factory\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\rain\render.h">
+      <Filter>factory\rain</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\thunderbolt\desc_render.h">
+      <Filter>factory\thunderbolt</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\thunderbolt\render.h">
+      <Filter>factory\thunderbolt</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\stats\stat_graph_render.h">
+      <Filter>factory\stats</Filter>
+    </ClInclude>
+    <ClInclude Include="factory\wallmark\array.h">
+      <Filter>factory\wallmark</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_render.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

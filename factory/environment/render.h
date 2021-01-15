@@ -1,11 +1,12 @@
 #ifndef FACTORY_ENVIRONMENT_RENDER_H_
 #define FACTORY_ENVIRONMENT_RENDER_H_
 
-#include "Include/xrRender/EnvironmentRender.h"
-#include "Include/xrRender/particles_systems_library_interface.hpp"
+#include <Include/xrRender/EnvironmentRender.h>
+#include <Include/xrRender/particles_systems_library_interface.hpp>
 
 
-class fEnvironmentRender : public IEnvironmentRender
+class fEnvironmentRender
+    : public IEnvironmentRender
 {
 public:
     fEnvironmentRender() = default;

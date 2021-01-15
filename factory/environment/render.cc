@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/environment/render.h"
 
 
@@ -6,10 +7,10 @@
  */
 void
 fEnvironmentRender::Copy
-        ( IEnvironmentRender& obj
+        ( IEnvironmentRender &obj
         )
 {
-    *this = *((fEnvironmentRender *)&obj);
+    *this = *(static_cast<fEnvironmentRender *>(&obj));
 }
 
 
@@ -18,7 +19,7 @@ fEnvironmentRender::Copy
  */
 void
 fEnvironmentRender::OnFrame
-        ( CEnvironment& env
+        ( CEnvironment &env
         )
 {
     // TBI
@@ -90,13 +91,15 @@ fEnvironmentRender::OnDeviceDestroy()
 
 
 // Dummy implementation
-class Dummy : public particles_systems::library_interface
+class Dummy
+    : public particles_systems::library_interface
 {
+    shared_str group_id_{ "empty" };
 public:
     PS::CPGDef const* const* particles_group_begin() const { return nullptr; };
     PS::CPGDef const* const* particles_group_end() const { return nullptr; }
     void particles_group_next(PS::CPGDef const* const*& iterator) const {};
-    shared_str const& particles_group_id(PS::CPGDef const& particles_group) const { return "nothing"; };
+    shared_str const& particles_group_id(PS::CPGDef const& particles_group) const { return group_id_; };
 } dummy;
 
 

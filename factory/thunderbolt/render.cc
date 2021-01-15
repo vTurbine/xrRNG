@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/thunderbolt/render.h"
 
 

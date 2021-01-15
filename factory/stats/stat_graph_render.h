@@ -1,10 +1,11 @@
 #ifndef FACTORY_STATS_STAT_GRAPH_RENDER_H_
 #define FACTORY_STATS_STAT_GRAPH_RENDER_H_
 
-#include "Include/xrRender/StatGraphRender.h"
+#include <Include/xrRender/StatGraphRender.h>
 
 
-class fStatGraphRender : public IStatGraphRender
+class fStatGraphRender
+    : public IStatGraphRender
 {
 public:
     fStatGraphRender() = default;

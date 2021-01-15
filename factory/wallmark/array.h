@@ -1,10 +1,11 @@
 #ifndef FACTORY_WALLMARK_ARRAY_H_
 #define FACTORY_WALLMARK_ARRAY_H_
 
-#include "Include/xrRender/WallMarkArray.h"
+#include <Include/xrRender/WallMarkArray.h>
 
 
-class fWallMarkArray : public IWallMarkArray
+class fWallMarkArray
+    : public IWallMarkArray
 {
 public:
     fWallMarkArray() = default;

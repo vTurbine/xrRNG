@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/factory.h"
 
 #define RENDER_FACTORY_IMPLEMENT(Class)                     \

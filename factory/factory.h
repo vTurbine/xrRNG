@@ -1,8 +1,6 @@
 #ifndef FACTORY_FACTORY_H_
 #define FACTORY_FACTORY_H_
 
-#include "Include/xrRender/RenderFactory.h"
-
 #include "factory/ui/sequence_video_item.h"
 #include "factory/ui/shader.h"
 #include "factory/stats/stat_graph_render.h"
@@ -19,12 +17,15 @@
 #include "factory/font/render.h"
 #include "factory/objects/render.h"
 
+#include <Include/xrRender/RenderFactory.h>
+
 
 #define RENDER_FACTORY_DECLARE(Class)                   \
     virtual I##Class* Create##Class();                  \
     virtual void Destroy##Class(I##Class *pObject);
 
-class RenderFactory : public IRenderFactory
+class RenderFactory
+    : public IRenderFactory
 {
     RENDER_FACTORY_DECLARE(UISequenceVideoItem)
     RENDER_FACTORY_DECLARE(UIShader)

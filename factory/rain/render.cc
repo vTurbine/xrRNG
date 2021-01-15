@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/rain/render.h"
 
 
@@ -32,5 +33,5 @@ const Fsphere&
 fRainRender::GetDropBounds() const
 {
     // TBI
-    return {};
+    return std::move(Fsphere{});
 }

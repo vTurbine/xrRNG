@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "factory/ui/sequence_video_item.h"
 
 
@@ -6,10 +7,10 @@
  */
 void
 fUISequenceVideoItem::Copy
-        ( IUISequenceVideoItem& obj
+        ( IUISequenceVideoItem  &obj
         )
 {
-    *this = *((fUISequenceVideoItem *)&obj);
+    *this = *(static_cast<fUISequenceVideoItem *>(&obj));
 }
 
 
