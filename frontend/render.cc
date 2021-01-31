@@ -1,222 +1,131 @@
-#include "xrGame/GamePersistent.h"
+#include "stdafx.h"
 
-#include "device/device.h"
 #include "backend/backend.h"
-
+#include "device/device.h"
 #include "frontend/render.h"
 
-
-/**
- *
- */
-void
-FrontEnd::Create
-        ( SDL_Window *hwnd
-        , u32        &width
-        , u32        &height
-        , float      &width_2
-        , float      &height_2
-        )
-{
-    width_2  = float(width  / 2);
-    height_2 = float(height / 2);
-
-    hw.CreateDevice(hwnd);
-}
+#include <xrEngine/IGame_Persistent.h>
 
 
-/**
- *
- */
-void
-FrontEnd::Destroy()
-{
-    hw.DestroyDevice();
-}
+using namespace xrrng;
 
-
-/**
- *
- */
+//-----------------------------------------------------------------------------
 void
 FrontEnd::OnDeviceCreate
-        ( LPCSTR shader
+        ( char const *shaders_lib_name
         )
 {
     backend.OnDeviceCreate();
 
-    resources.OnDeviceCreate(shader);
+    auto const num_frames = backend.GetContextsNum();
 
-    render_target = std::make_shared<RenderTarget>();
+    frame_datas_.resize(num_frames);
+    scene_cmds_ = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
 
-    particles_.OnCreate();
-
-    main_menu_.Create();
-}
-
-
-/**
- *
- */
-DeviceState
-FrontEnd::GetDeviceState()
-{
-    DeviceState result = DeviceState::Normal;
-
-    switch (swapchain_state_)
+    for (int i = 0; i < num_frames; ++i)
     {
-    case vk::Result::eSuccess:
-        // Nothing to do, continue;
-        break;
+        // Create resources
+        // ...
 
-    case vk::Result::eNotReady: // not ready, just wait
-    case vk::Result::eTimeout: // a surface wasn't acquired, wait and try again
-    case vk::Result::eErrorDeviceLost:
-    case vk::Result::eErrorSurfaceLostKHR:
-        // TODO: surface lost. What should we do?
-        result = DeviceState::Lost;
-        break;
+        // Pre-record command buffer
+        // ...
 
-    case vk::Result::eErrorOutOfDateKHR:
-    case vk::Result::eSuboptimalKHR:
-        // Surface params have been changed, need to re-create the swapchain
-        result = DeviceState::NeedReset;
-        break;
+        /*
+         * Here should be rendergraph
+         */
 
-    default:
-        // All other stuff like out-of-memory
-        R_ASSERT2(false, "Something went wrong with presentation device..");
-    };
+        auto& cmdL = scene_cmds_[i].get();
+        
+        auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
 
-    return result;
+        auto beginInfo = vk::CommandBufferBeginInfo()
+            .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
+            .setPInheritanceInfo(&inheritanceInfo);
+        cmdL.begin(beginInfo);
+
+        if (1) // clear pass
+        {
+            auto subResourceRange = vk::ImageSubresourceRange()
+                .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                .setBaseMipLevel(0)
+                .setLevelCount(1)
+                .setBaseArrayLayer(0)
+                .setLayerCount(1);
+
+            auto barrier = vk::ImageMemoryBarrier()
+                .setImage(device.State.colorImages[i])
+                .setOldLayout(vk::ImageLayout::eUndefined)
+                .setNewLayout(vk::ImageLayout::eGeneral)
+                .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
+                .setSubresourceRange(subResourceRange);
+
+            cmdL.pipelineBarrier(
+                vk::PipelineStageFlagBits::eAllGraphics,
+                vk::PipelineStageFlagBits::eAllGraphics,
+                vk::DependencyFlagBits::eDeviceGroup,
+                {}, {}, { barrier });
+
+            vk::ClearColorValue clearColor(std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f});
+            vk::ImageSubresourceRange range(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
+            cmdL.clearColorImage(device.State.colorImages[i], vk::ImageLayout::eGeneral, clearColor, range);
+
+            barrier
+                .setOldLayout(vk::ImageLayout::eGeneral)
+                .setNewLayout(vk::ImageLayout::ePresentSrcKHR);
+
+            cmdL.pipelineBarrier(
+                vk::PipelineStageFlagBits::eAllGraphics,
+                vk::PipelineStageFlagBits::eAllGraphics,
+                vk::DependencyFlagBits::eDeviceGroup,
+                {}, {}, { barrier });
+        }
+
+        cmdL.end();
+    }
 }
 
 
-/**
- *
- */
+//-----------------------------------------------------------------------------
 void
 FrontEnd::OnDeviceDestroy
         ( bool keep_textures
         )
 {
-    main_menu_.Destroy();
-
-    particles_.OnDestroy();
+    // ...
 
     backend.OnDeviceDestroy();
 }
 
 
-/**
- *
- */
+//-----------------------------------------------------------------------------
 void
-FrontEnd::Begin()
+FrontEnd::Calculate()
 {
-    const auto frame_semaphore =
-        backend.frame_semaphores[current_image_].get();
+    M_SCOPED;
 
-    swapchain_state_ =
-        hw.device->acquireNextImageKHR( hw.swapchain
-                                      , std::numeric_limits<std::uint64_t>::max()
-                                      , frame_semaphore
-                                      , nullptr
-                                      , &current_image_
-    );
+    FrameData &fd = frame_datas_[0]; // TODO: take from ctx num
 
-    backend.OnFrameBegin(current_image_);
-
-    // TODO: or handle this in backend, like the vanilla render does?
-    render_target->Set(RenderTarget::Type::Base);
-}
-
-
-/**
- *
- */
-void
-FrontEnd::End()
-{
-    backend.OnFrameEnd(current_image_);
-
-    // Presentation
-    const auto render_semaphore =
-        backend.render_semaphores[current_image_].get();
-
-    const auto present_info = vk::PresentInfoKHR()
-        .setWaitSemaphoreCount(1)
-        .setPWaitSemaphores(&render_semaphore)
-        .setSwapchainCount(1)
-        .setPSwapchains(&hw.swapchain)
-        .setPImageIndices(&current_image_);
-    
-    hw.submission_q.presentKHR(present_info);
-    current_image_ = (current_image_ + 1) % hw.swapchain_images.size();
-
-    #ifdef DEBUG
-    hw.device->waitIdle();
-    #endif
-}
-
-
-//-----------------------------------------------------------------------------
-IRender_Target *
-FrontEnd::getTarget()
-{
-    return render_target.get();
-}
-
-
-//-----------------------------------------------------------------------------
-IRenderVisual *
-FrontEnd::model_Create
-        ( LPCSTR   name
-        , IReader *data /* = 0 */
-        )
-{
-    return models_.CreateModel(name, data);
-}
-
-
-//-----------------------------------------------------------------------------
-IRenderVisual *
-FrontEnd::model_CreatePE
-        ( LPCSTR name
-        )
-{
-    auto effect_descriptor =
-        particles_.FindParticleEffectDescriptor(name);
-    VERIFY(effect_descriptor);
-
-    auto effect = models_.CreateParticleEffect(effect_descriptor);
-    return effect;
-}
-
-
-//-----------------------------------------------------------------------------
-IRenderVisual *
-FrontEnd::model_CreateParticles
-        ( LPCSTR name
-        )
-{
-    auto effect_descriptor =
-        particles_.FindParticleEffectDescriptor(name);
-
-    if (effect_descriptor)
+    // Detect current sector
+    if (!fd.vPrevCameraPos.similar(::Device.vCameraPosition, 1e-4/*EPS_S*/))
     {
-        auto effect = models_.CreateParticleEffect(effect_descriptor);
-        return effect;
-    }
-    else
-    {
-        auto group_descriptor =
-            particles_.FindParticleGroupDescriptor(name);
-        VERIFY(group_descriptor);
+        M_SCOPED_N("DetectSector");
 
-        auto group = models_.CreateParticleGroup(group_descriptor);
-        return group;
+        // ...
+
+        fd.vPrevCameraPos.set(::Device.vCameraPosition);
     }
+
+    // Collect static geometry
+    // ...
+
+    // Collect dynamic geometry
+    // ...
+
+    // Collect lights
+    // ...
 }
 
 
@@ -226,13 +135,35 @@ FrontEnd::Render()
 {
     VERIFY(g_pGamePersistent);
 
-    /* In menu rendering */
-    if (g_pGamePersistent->OnRenderPPUI_query())
+    // Skip menu rendering
+    if (g_pGamePersistent->IsMainMenuActive())
     {
-        main_menu_.Render();
-        return;
+        //return;
     }
 
-    /* Scene rendering */
-    // TBI
+    auto &cmdL = backend.GetCommandBuffer();
+
+    // Update resources
+    // ...
+
+    // Do streaming
+    // ...
+
+    // Submit list
+    // ...
+    cmdL.executeCommands(1, &scene_cmds_[device.State.imageIndex].get());
+}
+
+
+//-----------------------------------------------------------------------------
+void
+FrontEnd::SetCacheXform
+        ( Fmatrix   &mView
+        , Fmatrix   &mProject
+        )
+{
+    FrameData &fd = frame_datas_[device.State.imageIndex];
+
+    fd.mView        = mView;
+    fd.mProjection  = mProject;
 }

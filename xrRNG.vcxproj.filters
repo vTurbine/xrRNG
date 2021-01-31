@@ -62,6 +62,72 @@
     <ClCompile Include="ui\ui_render.cc">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="legacy\raffle\ModelPool.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FVisual.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FBasicVisual.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FHierrarhyVisual.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FProgressive.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\SkeletonRigid.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\SkeletonAnimated.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\SkeletonCustom.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\Animation.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\SkeletonX.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\Light_DB.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\light.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\render.cc">
+      <Filter>frontend</Filter>
+    </ClCompile>
+    <ClCompile Include="device\device.cc">
+      <Filter>device</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\backend.cc">
+      <Filter>backend</Filter>
+    </ClCompile>
+    <ClCompile Include="backend\swapchain.cpp">
+      <Filter>device</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FLOD.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FTreeVisual.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\loader.cc">
+      <Filter>legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\FSkinned.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\utils.cc">
+      <Filter>legacy</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\raffle\sector.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -117,6 +183,15 @@
     </Filter>
     <Filter Include="legacy\raffle">
       <UniqueIdentifier>{35ae16bd-8ab5-4ff0-91e6-47f7e5a4e530}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="backend">
+      <UniqueIdentifier>{6f591a82-57de-40ab-b48d-14fe791dff80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="device">
+      <UniqueIdentifier>{fb9dd8f8-3390-40e6-a9aa-ec6e948c26d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="3rdparty">
+      <UniqueIdentifier>{fbc1dc34-0b93-4ae5-b398-37778ccba4d0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +259,84 @@
     </ClInclude>
     <ClInclude Include="ui\ui_render.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\ModelPool.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FBasicVisual.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FVisual.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FHierrarhyVisual.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FProgressive.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\SkeletonAnimated.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\SkeletonCustom.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\Animation.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\KinematicAnimatedDefs.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\AnimationKeyCalculate.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\SkeletonXVertRender.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\SkeletonX.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\Light_DB.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\light.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\xrRender\Light_Package.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\light_smapvis.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\light_gi.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="device\device.h">
+      <Filter>device</Filter>
+    </ClInclude>
+    <ClInclude Include="backend\backend.h">
+      <Filter>backend</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FLOD.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FTreeVisual.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="device\debug.h">
+      <Filter>device</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FSkinned.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\FSkinnedTypes.h">
+      <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="frontend\frame_data.h">
+      <Filter>frontend</Filter>
+    </ClInclude>
+    <ClInclude Include="legacy\raffle\sector.h">
+      <Filter>legacy\raffle</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

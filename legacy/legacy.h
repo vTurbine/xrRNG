@@ -7,10 +7,43 @@
 #ifndef FRONTEND_LEGACY_H_
 #define FRONTEND_LEGACY_H_
 
+#include "legacy/raffle/Light_DB.h"
+#include "legacy/raffle/ModelPool.h"
+#include "legacy/raffle/sector.h"
+
 #include <Common/Common.hpp>
 #include <xrEngine/Render.h>
 #include <xrEngine/pure.h>
 
+
+using VertexFormat = struct
+{
+    uint16_t stream;
+    uint16_t offset;
+    uint8_t  type;
+    uint8_t  method;
+    uint8_t  usage;
+    uint8_t  usage_idx;
+};
+
+size_t GetDeclVertexSize(VertexFormat const *decl, uint32_t stream);
+size_t GetDeclLength(VertexFormat const* decl);
+
+
+using LevelData = struct
+{
+    std::vector<std::pair<std::string, std::string>> materials;
+    std::vector<IRenderVisual*> visuals;
+    std::vector<std::unique_ptr<uint8_t[]>> vertices;
+    std::vector<std::unique_ptr<uint8_t[]>> indices;
+    std::vector<FSlideWindowItem> swis;
+    std::vector<std::vector<VertexFormat>> formats;
+    std::vector<std::unique_ptr<IRender_Portal>> portals;
+    std::vector<std::unique_ptr<CSector>> sectors;
+    std::unique_ptr<CDB::MODEL> portals_model;
+};
+
+extern LevelData ld;
 
 class LegacyInterface
     : public IRender
@@ -62,8 +95,6 @@ public:
     bool occ_visible(vis_data& V) final;
     bool occ_visible(Fbox& B) final;
     bool occ_visible(sPoly& P) final;
-    void Calculate() final;
-    void Render() final;
     void BeforeWorldRender() final;
     void AfterWorldRender() final;
     void Screenshot(ScreenshotMode mode = SM_NORMAL, pcstr name = 0) final;
@@ -79,11 +110,9 @@ public:
     void setBrightness(float fGamma) final;
     void setContrast(float fGamma) final;
     void updateGamma() final;
-    void OnDeviceDestroy(bool bKeepTextures) final;
     void Destroy() final;
     void Reset(SDL_Window* hWnd, u32& dwWidth, u32& dwHeight, float& fWidth_2, float& fHeight_2) final;
     void SetupStates() final;
-    void OnDeviceCreate(pcstr shName) final;
     void Create(SDL_Window* hWnd, u32& dwWidth, u32& dwHeight, float& fWidth_2, float& fHeight_2) final;
     void SetupGPU(bool bForceGPU_SW, bool bForceGPU_NonPure, bool bForceGPU_REF) final;
     void overdrawBegin() final;
@@ -104,13 +133,15 @@ public:
     void Clear() final;
     void End() final;
     void ClearTarget() final;
-    void SetCacheXform(Fmatrix& mView, Fmatrix& mProject) final;
     void OnAssetsChanged() final;
     void ObtainRequiredWindowFlags(u32& windowFlags) final;
     void MakeContextCurrent(RenderContext context) final;
 
 protected:
     void ScreenshotImpl(ScreenshotMode mode, pcstr name, CMemoryWriter* memory_writer) final;
+
+    CModelPool model_pool_;
+    CLight_DB lights_;
 };
 
 

@@ -5,9 +5,15 @@
 
 #include "stdafx.h"
 #include "legacy/legacy.h"
+#include "legacy/raffle/FBasicVisual.h"
+
+#include "device/device.h"
+#include "backend/backend.h"
 
 #include <xrEngine/Render.h>
 
+#include <SDL.h>
+#include <SDL_syswm.h>
 
 
 //-----------------------------------------------------------------------------
@@ -75,15 +81,6 @@ void
 LegacyInterface::reset_end()
 {
 }
-
-
-
-//-----------------------------------------------------------------------------
-void
-LegacyInterface::level_Load(IReader* fs)
-{
-}
-
 
 
 //-----------------------------------------------------------------------------
@@ -269,7 +266,7 @@ LegacyInterface::ros_destroy
 IRender_Light *
 LegacyInterface::light_create()
 {
-    return nullptr;
+    return lights_.Create();
 }
 
 
@@ -316,7 +313,7 @@ LegacyInterface::model_Create
         , IReader  *data/*= 0*/
         )
 {
-    return nullptr;
+    return static_cast<IRenderVisual*>(model_pool_.Create(name, data));
 }
 
 
@@ -402,20 +399,6 @@ LegacyInterface::occ_visible
         )
 {
     return false;
-}
-
-
-//-----------------------------------------------------------------------------
-void
-LegacyInterface::Calculate()
-{
-}
-
-
-//-----------------------------------------------------------------------------
-void
-LegacyInterface::Render()
-{
 }
 
 
@@ -539,17 +522,9 @@ LegacyInterface::updateGamma()
 
 //-----------------------------------------------------------------------------
 void
-LegacyInterface::OnDeviceDestroy
-        ( bool bKeepTextures
-        )
-{
-}
-
-
-//-----------------------------------------------------------------------------
-void
 LegacyInterface::Destroy()
 {
+    xrrng::device.Destroy();
 }
 
 
@@ -575,15 +550,6 @@ LegacyInterface::SetupStates()
 
 //-----------------------------------------------------------------------------
 void
-LegacyInterface::OnDeviceCreate
-        ( pcstr shName
-        )
-{
-}
-
-
-//-----------------------------------------------------------------------------
-void
 LegacyInterface::Create
         ( SDL_Window   *hWnd
         , u32          &dwWidth
@@ -592,6 +558,16 @@ LegacyInterface::Create
         , float        &fHeight_2
         )
 {
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+
+    R_ASSERT2(SDL_GetWindowWMInfo(hWnd, &info), SDL_GetError());
+
+    HWND const window = info.info.win.window;
+    xrrng::device.Create(window, Device.dwWidth, Device.dwHeight);
+
+    fWidth_2  = static_cast<float>(dwWidth  / 2);
+    fHeight_2 = static_cast<float>(dwHeight / 2);
 }
 
 
@@ -701,7 +677,7 @@ LegacyInterface::HWSupportsShaderYUV2RGB()
 DeviceState
 LegacyInterface::GetDeviceState()
 {
-    return DeviceState::Normal;
+    return xrrng::device.GetDeviceState();
 }
 
 
@@ -736,6 +712,7 @@ LegacyInterface::BeforeFrame()
 void
 LegacyInterface::Begin()
 {
+    xrrng::backend.OnFrameBegin();
 }
 
 
@@ -750,22 +727,14 @@ LegacyInterface::Clear()
 void
 LegacyInterface::End()
 {
+    xrrng::backend.OnFrameEnd();
+    xrrng::device.Present();
 }
 
 
 //-----------------------------------------------------------------------------
 void
 LegacyInterface::ClearTarget()
-{
-}
-
-
-//-----------------------------------------------------------------------------
-void
-LegacyInterface::SetCacheXform
-        ( Fmatrix   &mView
-        , Fmatrix   &mProject
-        )
 {
 }
 
@@ -780,7 +749,7 @@ LegacyInterface::OnAssetsChanged()
 //-----------------------------------------------------------------------------
 void
 LegacyInterface::ObtainRequiredWindowFlags
-        ( u32   &windowFlags
+        ( uint32_t   &windowFlags
         )
 {
 }

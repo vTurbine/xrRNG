@@ -198,7 +198,10 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mixed|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="backend\backend.cc" />
+    <ClCompile Include="backend\swapchain.cpp" />
     <ClCompile Include="console\console.cc" />
+    <ClCompile Include="device\device.cc" />
     <ClCompile Include="entry_point.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mixed|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -218,7 +221,26 @@
     <ClCompile Include="factory\ui\sequence_video_item.cc" />
     <ClCompile Include="factory\ui\shader.cc" />
     <ClCompile Include="factory\wallmark\array.cc" />
+    <ClCompile Include="frontend\render.cc" />
     <ClCompile Include="legacy\legacy.cc" />
+    <ClCompile Include="legacy\loader.cc" />
+    <ClCompile Include="legacy\raffle\Animation.cpp" />
+    <ClCompile Include="legacy\raffle\FBasicVisual.cpp" />
+    <ClCompile Include="legacy\raffle\FHierrarhyVisual.cpp" />
+    <ClCompile Include="legacy\raffle\FLOD.cpp" />
+    <ClCompile Include="legacy\raffle\FProgressive.cpp" />
+    <ClCompile Include="legacy\raffle\FSkinned.cpp" />
+    <ClCompile Include="legacy\raffle\FTreeVisual.cpp" />
+    <ClCompile Include="legacy\raffle\FVisual.cpp" />
+    <ClCompile Include="legacy\raffle\light.cpp" />
+    <ClCompile Include="legacy\raffle\Light_DB.cpp" />
+    <ClCompile Include="legacy\raffle\ModelPool.cpp" />
+    <ClCompile Include="legacy\raffle\sector.cpp" />
+    <ClCompile Include="legacy\raffle\SkeletonAnimated.cpp" />
+    <ClCompile Include="legacy\raffle\SkeletonCustom.cpp" />
+    <ClCompile Include="legacy\raffle\SkeletonRigid.cpp" />
+    <ClCompile Include="legacy\raffle\SkeletonX.cpp" />
+    <ClCompile Include="legacy\utils.cc" />
     <ClCompile Include="ui\ui_render.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -226,8 +248,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Externals\volk\volk.h" />
+    <ClInclude Include="..\xrRender\Light_Package.h" />
+    <ClInclude Include="backend\backend.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="console\console.h" />
+    <ClInclude Include="device\debug.h" />
+    <ClInclude Include="device\device.h" />
     <ClInclude Include="factory\console\render.h" />
     <ClInclude Include="factory\environment\desc_mixer_render.h" />
     <ClInclude Include="factory\environment\desc_render.h" />
@@ -244,8 +270,30 @@
     <ClInclude Include="factory\ui\sequence_video_item.h" />
     <ClInclude Include="factory\ui\shader.h" />
     <ClInclude Include="factory\wallmark\array.h" />
+    <ClInclude Include="frontend\frame_data.h" />
     <ClInclude Include="frontend\render.h" />
     <ClInclude Include="legacy\legacy.h" />
+    <ClInclude Include="legacy\raffle\Animation.h" />
+    <ClInclude Include="legacy\raffle\AnimationKeyCalculate.h" />
+    <ClInclude Include="legacy\raffle\FBasicVisual.h" />
+    <ClInclude Include="legacy\raffle\FHierrarhyVisual.h" />
+    <ClInclude Include="legacy\raffle\FLOD.h" />
+    <ClInclude Include="legacy\raffle\FProgressive.h" />
+    <ClInclude Include="legacy\raffle\FSkinned.h" />
+    <ClInclude Include="legacy\raffle\FSkinnedTypes.h" />
+    <ClInclude Include="legacy\raffle\FTreeVisual.h" />
+    <ClInclude Include="legacy\raffle\FVisual.h" />
+    <ClInclude Include="legacy\raffle\KinematicAnimatedDefs.h" />
+    <ClInclude Include="legacy\raffle\light.h" />
+    <ClInclude Include="legacy\raffle\Light_DB.h" />
+    <ClInclude Include="legacy\raffle\light_gi.h" />
+    <ClInclude Include="legacy\raffle\light_smapvis.h" />
+    <ClInclude Include="legacy\raffle\ModelPool.h" />
+    <ClInclude Include="legacy\raffle\sector.h" />
+    <ClInclude Include="legacy\raffle\SkeletonAnimated.h" />
+    <ClInclude Include="legacy\raffle\SkeletonCustom.h" />
+    <ClInclude Include="legacy\raffle\SkeletonX.h" />
+    <ClInclude Include="legacy\raffle\SkeletonXVertRender.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui\ui_render.h" />
   </ItemGroup>
