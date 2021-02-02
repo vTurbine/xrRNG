@@ -671,10 +671,8 @@ void CKinematicsAnimated::Spawn()
 
     IBlend_Startup();
 
-#if 0
     for (u32 i = 0; i < bones->size(); i++)
         blend_instances[i].construct();
-#endif
     m_update_tracks_callback = nullptr;
     channels.init();
 }

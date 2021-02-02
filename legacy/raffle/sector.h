@@ -24,6 +24,10 @@ private:
     svector<Fvector, 8> poly;
     CSector *pFace, *pBack;
 
+#ifdef DEBUG
+    shared_str name_;
+#endif
+
 public:
     Fplane P;
     Fsphere S;
@@ -51,7 +55,7 @@ public:
             return pFace;
     }
     float distance(const Fvector& V) { return _abs(P.classify(V)); }
-    CPortal();
+    explicit CPortal(char const *name);
     virtual ~CPortal();
 
 #ifdef DEBUG
@@ -64,8 +68,11 @@ class dxRender_Visual;
 // Main 'Sector' class
 class CSector : public IRender_Sector
 {
+#ifdef DEBUG
+    shared_str name_;
+#endif
 protected:
-    dxRender_Visual* m_root; // whole geometry of that sector
+    dxRender_Visual* m_root{ nullptr }; // whole geometry of that sector
     xr_vector<CPortal*> m_portals;
 
 public:
@@ -80,7 +87,7 @@ public:
     void traverse(CFrustum& F, _scissor& R);
     void load(IReader& fs);
 
-    CSector() { m_root = nullptr; }
+    explicit CSector(char const *name) : name_(name) {}
     virtual ~CSector();
 };
 

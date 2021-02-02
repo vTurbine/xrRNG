@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "sector.h"
+#include "legacy/legacy.h"
 
 #include "Common/LevelStructure.hpp"
 #include "xrEngine/xr_object.h"
@@ -10,10 +11,11 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-CPortal::CPortal()
+CPortal::CPortal(char const *name)
 {
 #ifdef DEBUG
     //Device.seqRender.Add(this, REG_PRIORITY_LOW - 1000);
+    name_ = name;
 #endif
 }
 
@@ -305,7 +307,6 @@ void CSector::traverse(CFrustum& F, _scissor& R_scissor)
 
 void CSector::load(IReader& fs)
 {
-#if 0
     // Assign portal polygons
     u32 size = fs.find_chunk(fsP_Portals);
     R_ASSERT(0 == (size & 1));
@@ -314,7 +315,7 @@ void CSector::load(IReader& fs)
     while (count)
     {
         u16 ID = fs.r_u16();
-        CPortal* P = (CPortal*)RImplementation.getPortal(ID);
+        CPortal* P = (CPortal*)ld.portals[ID].get();
         m_portals.push_back(P);
         count--;
     }
@@ -326,7 +327,7 @@ void CSector::load(IReader& fs)
         // Assign visual
         size = fs.find_chunk(fsP_Root);
         R_ASSERT(size == 4);
-        m_root = (dxRender_Visual*)RImplementation.getVisual(fs.r_u32());
+        auto const id = fs.r_u32();
+        m_root = (dxRender_Visual*)ld.visuals[id];
     }
-#endif
 }

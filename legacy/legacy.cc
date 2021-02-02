@@ -138,7 +138,7 @@ LegacyInterface::getVisual
         ( int id
         )
 {
-    return nullptr;
+    return ld.visuals[id];
 }
 
 
@@ -323,7 +323,7 @@ LegacyInterface::model_CreateChild
         ( pcstr     name
         , IReader  *data)
 {
-    return nullptr;
+    return static_cast<IRenderVisual*>(model_pool_.CreateChild(name, data));
 }
 
 
@@ -333,7 +333,8 @@ LegacyInterface::model_Duplicate
         ( IRenderVisual *V
         )
 {
-    return nullptr;
+    auto* instance = static_cast<dxRender_Visual*>(V);
+    return static_cast<IRenderVisual*>(model_pool_.Instance_Duplicate(instance));
 }
 
 

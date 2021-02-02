@@ -23,9 +23,10 @@ struct IRender_Mesh
     u32 vBase;
     u32 vCount;
     u32 vStride{ 0 };
+    std::unique_ptr<uint8_t[]> vertices{};
 
     // indices
-    //IndexStagingBuffer* p_rm_Indices;
+    std::unique_ptr<uint8_t[]> indices{};
     u32 iBase;
     u32 iCount;
     u32 dwPrimitives;
@@ -33,10 +34,8 @@ struct IRender_Mesh
 
     IRender_Mesh()
     {
-        //p_rm_Vertices   = nullptr;
         vBase           = 0;
         vCount          = 0;
-        //p_rm_Indices    = nullptr;
         iBase           = 0;
         iCount          = 0;
         dwPrimitives    = 0;

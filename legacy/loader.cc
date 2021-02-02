@@ -159,9 +159,12 @@ LegacyInterface::level_Load
         R_ASSERT(0 == size % sizeof(b_portal));
         u32 count = size / sizeof(b_portal);
         ld.portals.resize(count);
+        char name[32];
         for (u32 c = 0; c < count; c++)
         {
-            ld.portals[c] = std::make_unique<CPortal>();
+            sprintf(name, "pr%d", c);
+            auto P = std::make_unique<CPortal>(name);
+            ld.portals[c] = std::move(P);
         }
 
         IReader* S = fs->open_chunk(fsL_SECTORS);
@@ -171,7 +174,8 @@ LegacyInterface::level_Load
             if (nullptr == P)
                 break;
 
-            auto &__S = ld.sectors.emplace_back(std::make_unique<CSector>());
+            sprintf(name, "sc%d", i);
+            auto &__S = ld.sectors.emplace_back(std::make_unique<CSector>(name));
             __S->load(*P);
 
             P->close();

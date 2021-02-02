@@ -1,13 +1,5 @@
-// SkeletonX.cpp: implementation of the CSkeletonX class.
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "stdafx.h"
-#pragma hdrstop
 
-#ifdef _EDITOR
-#include "Include/xrAPI/xrAPI.h"
-#endif
 #include "SkeletonX.h"
 #include "xrCore/FMesh.hpp"
 #include "xrCore/Math/MathUtil.hpp"
