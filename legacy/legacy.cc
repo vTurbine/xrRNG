@@ -143,16 +143,6 @@ LegacyInterface::getVisual
 
 
 //-----------------------------------------------------------------------------
-IRender_Sector *
-LegacyInterface::detectSector
-    ( Fvector const &P
-    )
-{
-    return nullptr;
-}
-
-
-//-----------------------------------------------------------------------------
 IRender_Target *
 LegacyInterface::getTarget()
 {

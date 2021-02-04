@@ -128,6 +128,12 @@
     <ClCompile Include="legacy\raffle\sector.cpp">
       <Filter>legacy\raffle</Filter>
     </ClCompile>
+    <ClCompile Include="legacy\raffle\sector_traversal.cpp">
+      <Filter>legacy\raffle</Filter>
+    </ClCompile>
+    <ClCompile Include="legacy\sector_detect.cc">
+      <Filter>legacy</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -236,10 +236,12 @@
     <ClCompile Include="legacy\raffle\Light_DB.cpp" />
     <ClCompile Include="legacy\raffle\ModelPool.cpp" />
     <ClCompile Include="legacy\raffle\sector.cpp" />
+    <ClCompile Include="legacy\raffle\sector_traversal.cpp" />
     <ClCompile Include="legacy\raffle\SkeletonAnimated.cpp" />
     <ClCompile Include="legacy\raffle\SkeletonCustom.cpp" />
     <ClCompile Include="legacy\raffle\SkeletonRigid.cpp" />
     <ClCompile Include="legacy\raffle\SkeletonX.cpp" />
+    <ClCompile Include="legacy\sector_detect.cc" />
     <ClCompile Include="legacy\utils.cc" />
     <ClCompile Include="ui\ui_render.cc" />
   </ItemGroup>

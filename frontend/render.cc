@@ -107,14 +107,14 @@ FrontEnd::Calculate()
     M_SCOPED;
 
     FrameData &fd = frame_datas_[0]; // TODO: take from ctx num
+    static IRender_Sector* sector = nullptr;
 
     // Detect current sector
     if (!fd.vPrevCameraPos.similar(::Device.vCameraPosition, 1e-4/*EPS_S*/))
     {
         M_SCOPED_N("DetectSector");
 
-        // ...
-
+        sector = detectSector(::Device.vCameraPosition);
         fd.vPrevCameraPos.set(::Device.vCameraPosition);
     }
 
