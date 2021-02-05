@@ -24,6 +24,10 @@ public:
     void SetCacheXform(Fmatrix &mView, Fmatrix &mProject) final;
 
 private:
+    void AddStatic(dxRender_Visual &vis, CFrustum &frustum);
+    void AddStaticLeaf(dxRender_Visual &vis);
+    void AddVisualInstance(dxRender_Visual &vis);
+
     std::vector<vk::UniqueCommandBuffer>    scene_cmds_;
     std::vector<FrameData>                  frame_datas_;
 };

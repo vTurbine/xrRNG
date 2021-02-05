@@ -83,7 +83,7 @@ public:
 
 public:
     // Main interface
-    dxRender_Visual* root() { return m_root; }
+    dxRender_Visual* root() const { return m_root; }
     void traverse(CFrustum& F, _scissor& R);
     void load(IReader& fs);
 
@@ -96,6 +96,7 @@ class CPortalTraverser
 public:
     enum
     {
+        VQ_DEFAULT = 0,
         VQ_HOM = (1 << 0),
         VQ_SSA = (1 << 1),
         VQ_SCISSOR = (1 << 2),

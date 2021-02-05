@@ -141,7 +141,7 @@ protected:
     void ScreenshotImpl(ScreenshotMode mode, pcstr name, CMemoryWriter* memory_writer) final;
 
 private:
-    IRender_Sector * detectSector(const Fvector& P, Fvector& dir);
+    IRender_Sector * detectSector(Fvector const &P, Fvector const &dir);
 
     CModelPool  model_pool_;
     CLight_DB   lights_;

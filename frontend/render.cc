@@ -3,8 +3,10 @@
 #include "backend/backend.h"
 #include "device/device.h"
 #include "frontend/render.h"
+#include "legacy/raffle/FHierrarhyVisual.h"
 
 #include <xrEngine/IGame_Persistent.h>
+#include <xrCore/FMesh.hpp>
 
 
 using namespace xrrng;
@@ -102,6 +104,99 @@ FrontEnd::OnDeviceDestroy
 
 //-----------------------------------------------------------------------------
 void
+FrontEnd::AddStatic
+        ( dxRender_Visual &vis
+        , CFrustum        &frustum
+        )
+{
+    auto& bvolume = vis.vis;
+    auto mask = frustum.getMask();
+
+    // Check frustum visibility and calculate distance to visual's center
+    auto const visibility = frustum.testSAABB(
+        bvolume.sphere.P,
+        bvolume.sphere.R,
+        bvolume.box.data(),
+        mask
+    );
+
+    if (visibility == fcvNone)
+    {
+        return;
+    }
+
+    switch (vis.Type)
+    {
+    case MT_NORMAL:
+    {
+        AddVisualInstance(vis);
+        break;
+    }
+    case MT_HIERRARHY:
+    {
+        auto const &hvis = static_cast<FHierrarhyVisual&>(vis);
+        if (visibility == fcvPartial)
+        {
+            for (auto const &child : hvis.children)
+            {
+                AddStatic(*child, frustum);
+            }
+        }
+        else
+        {
+            for (auto const &child : hvis.children)
+            {
+                AddStaticLeaf(*child);
+            }
+        }
+        break;
+    }
+
+    default:
+        break;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+void
+FrontEnd::AddStaticLeaf
+        ( dxRender_Visual &vis
+        )
+{
+    switch (vis.Type)
+    {
+    case MT_NORMAL:
+    {
+        AddVisualInstance(vis);
+        break;
+    }
+    case MT_HIERRARHY:
+    {
+        auto const &hvis = static_cast<FHierrarhyVisual&>(vis);
+        for (auto const &child : hvis.children)
+        {
+            AddVisualInstance(*child);
+        }
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+void
+FrontEnd::AddVisualInstance
+        ( dxRender_Visual &vis
+        )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+void
 FrontEnd::Calculate()
 {
     M_SCOPED;
@@ -118,11 +213,34 @@ FrontEnd::Calculate()
         fd.vPrevCameraPos.set(::Device.vCameraPosition);
     }
 
+    ViewBase.CreateFromMatrix(::Device.mFullTransform, FRUSTUM_P_LRTB | FRUSTUM_P_NEAR);
+
     // Collect static geometry
-    // ...
+    if (true)
+    {
+        PortalTraverser.traverse(
+            sector,
+            ViewBase,
+            ::Device.vCameraPosition,
+            ::Device.mFullTransform,
+            CPortalTraverser::VQ_DEFAULT
+        );
+
+        for (auto const sector : PortalTraverser.r_sectors)
+        {
+            auto const *S = static_cast<CSector*>(sector);
+            for (auto frustum : S->r_frustums)
+            {
+                AddStatic(*S->root(), frustum);
+            }
+        }
+    }
 
     // Collect dynamic geometry
-    // ...
+    if (false)
+    {
+        // ...
+    }
 
     // Collect lights
     // ...

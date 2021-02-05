@@ -133,12 +133,12 @@ void CPortal::Setup(Fvector* V, int vcnt, CSector* face, CSector* back)
 //
 CSector::~CSector() {}
 //
-extern float r_ssaDISCARD;
-extern float r_ssaLOD_A, r_ssaLOD_B;
+float r_ssaDISCARD;
+float r_ssaLOD_A;
+float r_ssaLOD_B;
 
 void CSector::traverse(CFrustum& F, _scissor& R_scissor)
 {
-#if 0
     // Register traversal process
     if (r_marker != PortalTraverser.i_marker)
     {
@@ -149,6 +149,10 @@ void CSector::traverse(CFrustum& F, _scissor& R_scissor)
     }
     r_frustums.push_back(F);
     r_scissors.push_back(R_scissor);
+
+    // TODO: don't go too far by now. Stay in the current sector
+    //
+    return;
 
     // Search visible portals and go through them
     sPoly S, D;
@@ -245,10 +249,6 @@ void CSector::traverse(CFrustum& F, _scissor& R_scissor)
             if (depth < EPS)
             {
                 scissor = R_scissor;
-
-                // Cull by HOM (slower algo)
-                if ((PortalTraverser.i_options & CPortalTraverser::VQ_HOM) && (!RImplementation.HOM.visible(*P)))
-                    continue;
             }
             else
             {
@@ -277,22 +277,11 @@ void CSector::traverse(CFrustum& F, _scissor& R_scissor)
                     continue;
                 if (scissor.min.y >= scissor.max.y)
                     continue;
-
-                // Cull by HOM (faster algo)
-                if ((PortalTraverser.i_options & CPortalTraverser::VQ_HOM) &&
-                    !RImplementation.HOM.visible(scissor, depth))
-                {
-                    continue;
-                }
             }
         }
         else
         {
             scissor = R_scissor;
-
-            // Cull by HOM (slower algo)
-            if ((PortalTraverser.i_options & CPortalTraverser::VQ_HOM) && (!RImplementation.HOM.visible(*P)))
-                continue;
         }
 
         // Create _new_ frustum and recurse
@@ -302,7 +291,6 @@ void CSector::traverse(CFrustum& F, _scissor& R_scissor)
         PORTAL->bDualRender = FALSE;
         pSector->traverse(Clip, scissor);
     }
-#endif
 }
 
 void CSector::load(IReader& fs)
