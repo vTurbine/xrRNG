@@ -134,6 +134,12 @@
     <ClCompile Include="legacy\sector_detect.cc">
       <Filter>legacy</Filter>
     </ClCompile>
+    <ClCompile Include="frontend\tasks\menu_pass.cc">
+      <Filter>frontend\tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="frontend\tasks\scene_pass_dummy.cc">
+      <Filter>frontend\tasks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -198,6 +204,9 @@
     </Filter>
     <Filter Include="3rdparty">
       <UniqueIdentifier>{fbc1dc34-0b93-4ae5-b398-37778ccba4d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="frontend\tasks">
+      <UniqueIdentifier>{228bb15f-9c1d-4eaa-b637-7ecc07ed8f59}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -343,6 +352,12 @@
     </ClInclude>
     <ClInclude Include="legacy\raffle\sector.h">
       <Filter>legacy\raffle</Filter>
+    </ClInclude>
+    <ClInclude Include="frontend\tasks\menu_pass.h">
+      <Filter>frontend\tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="frontend\tasks\scene_pass_dummy.h">
+      <Filter>frontend\tasks</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,6 +4,8 @@
 #include "backend/backend.h"
 #include "device/device.h"
 #include "frontend/render.h"
+#include "frontend/tasks/menu_pass.h"
+#include "frontend/tasks/scene_pass_dummy.h"
 #include "legacy/raffle/FHierrarhyVisual.h"
 
 #include <xrEngine/IGame_Persistent.h>
@@ -23,7 +25,11 @@ FrontEnd::OnDeviceCreate
     auto const num_frames = backend.GetContextsNum();
 
     frame_datas_.resize(num_frames);
+    menu_cmds_  = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
     scene_cmds_ = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
+
+    MenuPass menu;
+    ScenePass scene;
 
     for (int i = 0; i < num_frames; ++i)
     {
@@ -32,63 +38,39 @@ FrontEnd::OnDeviceCreate
         // Create resources
         // ...
 
-        // Pre-record command buffer
-        // ...
+        // Pre-record command buffers
 
         /*
          * Here should be rendergraph
          */
 
-        auto& cmdL = scene_cmds_[i].get();
-        
-        auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
+        { // Menu
+            auto& cmdL = menu_cmds_[i].get();
 
-        auto beginInfo = vk::CommandBufferBeginInfo()
-            .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
-            .setPInheritanceInfo(&inheritanceInfo);
-        cmdL.begin(beginInfo);
+            auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
 
-        if (1) // clear pass
-        {
-            auto subResourceRange = vk::ImageSubresourceRange()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setBaseMipLevel(0)
-                .setLevelCount(1)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
+            auto beginInfo = vk::CommandBufferBeginInfo()
+                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
+                .setPInheritanceInfo(&inheritanceInfo);
 
-            auto barrier = vk::ImageMemoryBarrier()
-                .setImage(device.State.colorImages[i])
-                .setOldLayout(vk::ImageLayout::eUndefined)
-                .setNewLayout(vk::ImageLayout::eGeneral)
-                .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite)
-                .setSubresourceRange(subResourceRange);
-
-            cmdL.pipelineBarrier(
-                vk::PipelineStageFlagBits::eAllGraphics,
-                vk::PipelineStageFlagBits::eAllGraphics,
-                vk::DependencyFlagBits::eDeviceGroup,
-                {}, {}, { barrier });
-
-            vk::ClearColorValue clearColor(std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f});
-            vk::ImageSubresourceRange range(vk::ImageAspectFlagBits::eColor, 0, 1, 0, 1);
-            cmdL.clearColorImage(device.State.colorImages[i], vk::ImageLayout::eGeneral, clearColor, range);
-
-            barrier
-                .setOldLayout(vk::ImageLayout::eGeneral)
-                .setNewLayout(vk::ImageLayout::ePresentSrcKHR);
-
-            cmdL.pipelineBarrier(
-                vk::PipelineStageFlagBits::eAllGraphics,
-                vk::PipelineStageFlagBits::eAllGraphics,
-                vk::DependencyFlagBits::eDeviceGroup,
-                {}, {}, { barrier });
+            cmdL.begin(beginInfo);
+            menu.Build(cmdL);
+            cmdL.end();
         }
 
-        cmdL.end();
+        { // Game
+            auto& cmdL = scene_cmds_[i].get();
+
+            auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
+
+            auto beginInfo = vk::CommandBufferBeginInfo()
+                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
+                .setPInheritanceInfo(&inheritanceInfo);
+            
+            cmdL.begin(beginInfo);
+            scene.Build(cmdL);
+            cmdL.end();
+        }
     }
 }
 
@@ -294,13 +276,14 @@ FrontEnd::Render()
     VERIFY(g_pGamePersistent);
     M_SCOPED;
 
-    // Skip menu rendering
+    auto &cmdL = backend.GetCommandBuffer();
+
+    // Menu rendering
     if (g_pGamePersistent->IsMainMenuActive())
     {
-        //return;
+        cmdL.executeCommands(1, &menu_cmds_[device.State.imageIndex].get());
+        return;
     }
-
-    auto &cmdL = backend.GetCommandBuffer();
 
     // Update resources
     // ...

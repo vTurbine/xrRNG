@@ -8,6 +8,17 @@
 #include <xrEngine/Render.h>
 
 
+class RenderTask
+{
+public:
+    explicit RenderTask(char const *name) { name_ = name; }
+    virtual void Build(vk::CommandBuffer& cmdL) = 0;
+
+private:
+    std::string name_;
+};
+
+
 class FrontEnd final
     : public LegacyInterface
 {
@@ -28,6 +39,7 @@ private:
     void AddStaticLeaf(dxRender_Visual &vis);
     void AddVisualInstance(dxRender_Visual &vis);
 
+    std::vector<vk::UniqueCommandBuffer>    menu_cmds_;
     std::vector<vk::UniqueCommandBuffer>    scene_cmds_;
     std::vector<FrameData>                  frame_datas_;
 };

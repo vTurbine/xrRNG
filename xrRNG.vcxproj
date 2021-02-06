@@ -222,6 +222,8 @@
     <ClCompile Include="factory\ui\shader.cc" />
     <ClCompile Include="factory\wallmark\array.cc" />
     <ClCompile Include="frontend\render.cc" />
+    <ClCompile Include="frontend\tasks\menu_pass.cc" />
+    <ClCompile Include="frontend\tasks\scene_pass_dummy.cc" />
     <ClCompile Include="legacy\legacy.cc" />
     <ClCompile Include="legacy\loader.cc" />
     <ClCompile Include="legacy\raffle\Animation.cpp" />
@@ -274,6 +276,8 @@
     <ClInclude Include="factory\wallmark\array.h" />
     <ClInclude Include="frontend\frame_data.h" />
     <ClInclude Include="frontend\render.h" />
+    <ClInclude Include="frontend\tasks\menu_pass.h" />
+    <ClInclude Include="frontend\tasks\scene_pass_dummy.h" />
     <ClInclude Include="legacy\legacy.h" />
     <ClInclude Include="legacy\raffle\Animation.h" />
     <ClInclude Include="legacy\raffle\AnimationKeyCalculate.h" />
