@@ -244,6 +244,8 @@ Device::Present()
 
     // TODO: check device state
 
+    M_FRAME_END;
+
     // Switch to the next swapchain image
     currentImage = (currentImage + 1) % State.colorImages.size();
 

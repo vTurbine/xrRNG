@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "console/console.h"
 #include "backend/backend.h"
 #include "device/device.h"
 #include "frontend/render.h"
@@ -26,6 +27,8 @@ FrontEnd::OnDeviceCreate
 
     for (int i = 0; i < num_frames; ++i)
     {
+        frame_datas_[i].StaticGeometryList.reserve(R_MAX_STATIC_OBJS);
+
         // Create resources
         // ...
 
@@ -185,6 +188,11 @@ FrontEnd::AddStaticLeaf
     }
 }
 
+ICF float CalcSSA(float& distSQ, Fvector& C, float R)
+{
+    distSQ = ::Device.vCameraPosition.distance_to_sqr(C) + EPS;
+    return R / distSQ;
+}
 
 //-----------------------------------------------------------------------------
 void
@@ -192,6 +200,18 @@ FrontEnd::AddVisualInstance
         ( dxRender_Visual &vis
         )
 {
+    float distSQ;
+    float SSA = CalcSSA(
+        distSQ,
+        vis.vis.sphere.P,
+        vis.vis.sphere.R
+    );
+    
+    if (SSA <= params.f_ssa_discard)
+        return;
+
+    // Add to list
+    frame_datas_[0].StaticGeometryList.push_back({ SSA, &vis });
 }
 
 
@@ -218,6 +238,15 @@ FrontEnd::Calculate()
     // Collect static geometry
     if (true)
     {
+        M_SCOPED_N("CollectStatic");
+
+        /*
+         * TODO: Here we can try to re-use static geometry list from the previous
+         * frame in case if camera pos & dir weren't changed too much
+         */
+        fd.StaticGeometryList.clear(); // TODO: Previous FD! wouldn't it be realloc?
+
+        // Gather visible sectors
         PortalTraverser.traverse(
             sector,
             ViewBase,
@@ -226,6 +255,7 @@ FrontEnd::Calculate()
             CPortalTraverser::VQ_DEFAULT
         );
 
+        // Collect sectors visuals
         for (auto const sector : PortalTraverser.r_sectors)
         {
             auto const *S = static_cast<CSector*>(sector);
@@ -234,6 +264,16 @@ FrontEnd::Calculate()
                 AddStatic(*S->root(), frustum);
             }
         }
+
+        // Soft front to back
+        std::sort(
+            fd.StaticGeometryList.begin(),
+            fd.StaticGeometryList.end(),
+            [](const auto& f, const auto& s)
+            {
+                return f.first > s.first;
+            }
+        );
     }
 
     // Collect dynamic geometry
@@ -252,6 +292,7 @@ void
 FrontEnd::Render()
 {
     VERIFY(g_pGamePersistent);
+    M_SCOPED;
 
     // Skip menu rendering
     if (g_pGamePersistent->IsMainMenuActive())

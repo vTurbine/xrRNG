@@ -5,6 +5,13 @@
 namespace xrrng
 {
 
+struct RenderParams
+{
+    float f_ssa_discard{ 0.f }; // TODO: currently no discard at all
+};
+
+extern RenderParams params;
+
 /**
  *
  */
