@@ -202,6 +202,7 @@
     <ClCompile Include="backend\swapchain.cpp" />
     <ClCompile Include="console\console.cc" />
     <ClCompile Include="device\device.cc" />
+    <ClCompile Include="device\memory.cc" />
     <ClCompile Include="entry_point.cc">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mixed|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -253,6 +254,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\Externals\volk\volk.h" />
     <ClInclude Include="..\xrRender\Light_Package.h" />
+    <ClInclude Include="3rdparty\VulkanMemoryAllocator\src\vk_mem_alloc.h" />
     <ClInclude Include="backend\backend.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="console\console.h" />

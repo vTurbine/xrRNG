@@ -3,7 +3,7 @@
   <ItemGroup>
     <ClCompile Include="entry_point.cc" />
     <ClCompile Include="..\..\..\Externals\volk\volk.c">
-      <Filter>volk</Filter>
+      <Filter>3rdparty\volk</Filter>
     </ClCompile>
     <ClCompile Include="console\console.cc">
       <Filter>console</Filter>
@@ -140,14 +140,14 @@
     <ClCompile Include="frontend\tasks\scene_pass_dummy.cc">
       <Filter>frontend\tasks</Filter>
     </ClCompile>
+    <ClCompile Include="device\memory.cc">
+      <Filter>device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="volk">
-      <UniqueIdentifier>{e9f102a3-2bb7-45b3-91a2-5732071e2824}</UniqueIdentifier>
-    </Filter>
     <Filter Include="console">
       <UniqueIdentifier>{5cbd6865-6f15-48a4-9a82-faed36a77f73}</UniqueIdentifier>
     </Filter>
@@ -208,10 +208,13 @@
     <Filter Include="frontend\tasks">
       <UniqueIdentifier>{228bb15f-9c1d-4eaa-b637-7ecc07ed8f59}</UniqueIdentifier>
     </Filter>
+    <Filter Include="3rdparty\volk">
+      <UniqueIdentifier>{e9f102a3-2bb7-45b3-91a2-5732071e2824}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\Externals\volk\volk.h">
-      <Filter>volk</Filter>
+      <Filter>3rdparty\volk</Filter>
     </ClInclude>
     <ClInclude Include="console\console.h">
       <Filter>console</Filter>
@@ -358,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="frontend\tasks\scene_pass_dummy.h">
       <Filter>frontend\tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\VulkanMemoryAllocator\src\vk_mem_alloc.h">
+      <Filter>3rdparty</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

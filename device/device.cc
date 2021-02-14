@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "device.h"
 
+#include <volk/volk.h>
+
 
 using namespace xrrng;
 
@@ -86,9 +88,7 @@ Device::Create
 
     CreateCmdBufferPools();
 
-#if  0
     CreateMemoryAllocator();
-#endif
 
     // Acquire image
     State.deviceState =
@@ -178,6 +178,7 @@ Device::CreateInstance()
     instance_ = vk::createInstanceUnique(instanceInfo/*, hostAllocationInfo*/);
 
     VULKAN_HPP_DEFAULT_DISPATCHER.init(instance_.get());
+    volkLoadInstance(instance_.get());
 }
 
 
@@ -211,24 +212,23 @@ Device::SelectGpu()
 
     R_ASSERT2(isGpu, "Selected device is not a GPU");
 
-#if 0
-    m_PhyCaps.properties = gpu_.getProperties();
-    m_PhyCaps.features = gpu_.getFeatures();
-    m_PhyCaps.memory = gpu_.getMemoryProperties();
+    phy_caps_.properties    = gpu_.getProperties();
+    phy_caps_.features      = gpu_.getFeatures();
+    //phy_caps_.memory        = gpu_.getMemoryProperties();
 
     // Display name of the video board
     Msg("* GPU [vendor:%X]-[device:%X]: %s",
-        m_PhyCaps.properties.vendorID,
-        m_PhyCaps.properties.deviceID,
-        m_PhyCaps.properties.deviceName
+        phy_caps_.properties.vendorID,
+        phy_caps_.properties.deviceID,
+        phy_caps_.properties.deviceName
     );
 
     // Obtain driver information
     vkGetPhysicalDeviceProperties2KHR = (PFN_vkGetPhysicalDeviceProperties2KHR)
-        m_Instance->getProcAddr("vkGetPhysicalDeviceProperties2KHR");
+        instance_->getProcAddr("vkGetPhysicalDeviceProperties2KHR");
     
     if (vkGetPhysicalDeviceProperties2KHR) { // extension loaded
-        auto driver_props = m_Gpu.getProperties2KHR<
+        auto driver_props = gpu_.getProperties2KHR<
             vk::PhysicalDeviceProperties2KHR,
             vk::PhysicalDeviceDriverPropertiesKHR>();
 
@@ -242,7 +242,6 @@ Device::SelectGpu()
             conformance_version.subminor,
             conformance_version.patch);
     }
-#endif
 }
 
 
@@ -343,6 +342,7 @@ Device::CreateLogicalDevice()
     m_Device = gpu_.createDeviceUnique(device_info/*, hostAllocationInfo*/);
 
     VULKAN_HPP_DEFAULT_DISPATCHER.init(m_Device.get());
+    volkLoadDevice(m_Device.get());
 }
 
 
@@ -478,9 +478,9 @@ Device::AllocateCmdBuffers
 void
 Device::Destroy()
 {
-#if 0
     DestroyMemoryAllocator();
 
+#if 0
     for (auto& pool : m_CmdPools)
     {
         pool.reset();

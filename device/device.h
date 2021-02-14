@@ -3,6 +3,8 @@
 
 #include <xrEngine/device.h>
 
+#include <3rdparty/VulkanMemoryAllocator/src/vk_mem_alloc.h>
+
 #include <optional>
 
 
@@ -42,6 +44,8 @@ private:
     void CreateQueues();
     void CreateSyncs();
     void CreateCmdBufferPools();
+    void CreateMemoryAllocator();
+    void DestroyMemoryAllocator();
 
     vk::PresentModeKHR SelectPresentationMode() const;
     vk::Format SelectDepthStencilFormat() const;
@@ -67,14 +71,12 @@ public:
 private:
     static constexpr auto VkUndefined = std::numeric_limits<uint32_t>::max();
 
-#if 0
     struct PhyCaps_t
     {
         vk::PhysicalDeviceProperties properties;
         vk::PhysicalDeviceFeatures features;
-        vk::PhysicalDeviceMemoryProperties memory;
+        //vk::PhysicalDeviceMemoryProperties memory;
     } phy_caps_;
-#endif
 
     struct WsiCaps_t
     {
@@ -99,8 +101,9 @@ private:
     std::array<vk::UniqueCommandPool, MAX_QUEUES> m_CmdPools;
 
     HWND m_hWnd;
-    vk::UniqueSurfaceKHR m_WsiSurface;
-    vk::UniqueSwapchainKHR m_Swapchain;
+    vk::UniqueSurfaceKHR    m_WsiSurface;
+    vk::UniqueSwapchainKHR  m_Swapchain;
+    VmaAllocator            allocator_;
 };
 
 extern Device device;
