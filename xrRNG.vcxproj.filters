@@ -143,6 +143,9 @@
     <ClCompile Include="device\memory.cc">
       <Filter>device</Filter>
     </ClCompile>
+    <ClCompile Include="resources\manager.cc">
+      <Filter>resources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -210,6 +213,9 @@
     </Filter>
     <Filter Include="3rdparty\volk">
       <UniqueIdentifier>{e9f102a3-2bb7-45b3-91a2-5732071e2824}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources">
+      <UniqueIdentifier>{28305e5f-aa1d-411b-a8be-3dc958d78ec5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -364,6 +370,9 @@
     </ClInclude>
     <ClInclude Include="3rdparty\VulkanMemoryAllocator\src\vk_mem_alloc.h">
       <Filter>3rdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="resources\manager.h">
+      <Filter>resources</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

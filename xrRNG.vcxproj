@@ -246,6 +246,7 @@
     <ClCompile Include="legacy\raffle\SkeletonX.cpp" />
     <ClCompile Include="legacy\sector_detect.cc" />
     <ClCompile Include="legacy\utils.cc" />
+    <ClCompile Include="resources\manager.cc" />
     <ClCompile Include="ui\ui_render.cc" />
   </ItemGroup>
   <ItemGroup>
@@ -302,6 +303,7 @@
     <ClInclude Include="legacy\raffle\SkeletonCustom.h" />
     <ClInclude Include="legacy\raffle\SkeletonX.h" />
     <ClInclude Include="legacy\raffle\SkeletonXVertRender.h" />
+    <ClInclude Include="resources\manager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui\ui_render.h" />
   </ItemGroup>

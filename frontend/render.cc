@@ -7,6 +7,7 @@
 #include "frontend/tasks/menu_pass.h"
 #include "frontend/tasks/scene_pass_dummy.h"
 #include "legacy/raffle/FHierrarhyVisual.h"
+#include "resources/manager.h"
 
 #include <xrEngine/IGame_Persistent.h>
 #include <xrCore/FMesh.hpp>
@@ -21,6 +22,7 @@ FrontEnd::OnDeviceCreate
         )
 {
     backend.OnDeviceCreate();
+    resources.OnDeviceCreate(shaders_lib_name);
 
     auto const num_frames = backend.GetContextsNum();
 

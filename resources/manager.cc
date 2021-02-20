@@ -1,163 +1,11 @@
-#include <functional>
-#include <string>
-
-#include "Layers/xrRender/blenders/Blender_CLSID.h"
+#include "stdafx.h"
 
 #include "resources/manager.h"
-#include "resources/blender_compiler.h"
-#include "resources/blender_screen_set.h"
+
+#include <xrEngine/WaveForm.h>
 
 
-/**
- *
- */
-std::shared_ptr<Constant>
-ResourceManager::CreateConstant
-        ( LPCSTR name
-        )
-{
-    R_ASSERT(name && name[0]);
-
-    if (xr_stricmp(name, "$null") == 0)
-    {
-        return nullptr;
-    }
-
-    const auto &iterator = constants_.find(name);
-    if (iterator != constants_.end())
-    {
-        return iterator->second;
-    }
-
-    auto c = std::make_shared<Constant>();
-    c->dwFlags |= xr_resource_flagged::RF_REGISTERED;
-    c->dwReference = 1;
-    constants_.insert(std::make_pair(c->set_name(name), c));
-    return c;
-}
-
-
-/**
- *
- */
-void
-ResourceManager::DeleteConstant
-        ( const std::shared_ptr<Constant> &constant
-        )
-{
-    if ((constant->dwFlags & xr_resource_flagged::RF_REGISTERED) == 0)
-    {
-        return;
-    }
-
-    const auto name = *constant->cName;
-    auto &iterator = constants_.find(name);
-
-    if (iterator != constants_.end())
-    {
-        constants_.erase(iterator);
-        return;
-    }
-    Msg("! ERROR: Unable to find constant '%s'", name);
-}
-
-
-/**
- *
- */
-std::shared_ptr<Matrix>
-ResourceManager::CreateMatrix
-        ( LPCSTR name
-        )
-{
-    R_ASSERT(name && name[0]);
-
-    if (xr_stricmp(name, "$null") == 0)
-    {
-        return nullptr;
-    }
-
-    const auto &iterator = matrices_.find(name);
-    if (iterator != matrices_.end())
-    {
-        return iterator->second;
-    }
-
-    auto m = std::make_shared<Matrix>();
-    m->dwFlags |= xr_resource_flagged::RF_REGISTERED;
-    m->dwReference = 1;
-    matrices_.insert(std::make_pair(m->set_name(name), m));
-    return m;
-}
-
-
-void
-ResourceManager::DeleteMatrix
-        ( const std::shared_ptr<Matrix> &matrix
-        )
-{
-    if ((matrix->dwFlags & xr_resource_flagged::RF_REGISTERED) == 0)
-    {
-        return;
-    }
-
-    const auto name = *matrix->cName;
-    auto &iterator = matrices_.find(name);
-
-    if (iterator != matrices_.end())
-    {
-        matrices_.erase(iterator);
-        return;
-    }
-    Msg("! ERROR: Unable to find matrix '%s'", name);
-}
-
-
-/**
- *
- */
-std::shared_ptr<Blender>
-ResourceManager::CreateBlender
-        ( CLASS_ID class_id
-        )
-{
-    std::shared_ptr<Blender> blender{};
-
-    switch (class_id)
-    {
-    case B_SCREEN_SET:
-        blender = std::make_shared<blenders::ScreenSet>();
-        break;
-
-    default:
-        // nothing here
-        break;
-    };
-
-    return blender;
-}
-
-
-/**
- *
- */
-std::shared_ptr<Blender>
-ResourceManager::GetBlender
-        ( const std::string &name
-        )
-{
-    R_ASSERT(name.size());
-    const auto &iterator = blenders_.find(name);
-
-    if (iterator == blenders_.end())
-    {
-        xrDebug::Fatal(DEBUG_INFO, "Blender '%s' not found in library.", name);
-        return nullptr;
-    }
-
-    return iterator->second;
-}
-
+ResourceManager resources;
 
 enum ShaderBaseChunkType
 {
@@ -166,19 +14,25 @@ enum ShaderBaseChunkType
     eBlender
 };
 
+struct BlenderDescription
+{
+    CLASS_ID    class_id;
+    string128   name;
+    string32    computer_name;
+    u32         time;
+    u16         version;
+};
+
 
 /**
  *
  */
 void
 ResourceManager::OnDeviceCreate
-        ( const std::string &file_name
+        ( std::string const     &file_name
         )
 {
-    // Load scripted blenders
-    ScriptingLoad();
-
-    const std::string signature { "shENGINE" };
+    std::string const signature { "shENGINE" };
     string32 id;
     IReader *rstream = FS.r_open(file_name.c_str());
     
@@ -199,8 +53,8 @@ ResourceManager::OnDeviceCreate
         while (!fs->eof())
         {
             fs->r_stringZ(name, sizeof(name));
-            auto c = CreateConstant(name);
-            c->Load(fs);
+            fs->advance(4 * 4); // r,g,b,a
+            Msg("! Constant %s skipped..", name);
         }
         fs->close();
     }
@@ -214,8 +68,8 @@ ResourceManager::OnDeviceCreate
         while (!fs->eof())
         {
             fs->r_stringZ(name, sizeof(name));
-            auto m = CreateMatrix(name);
-            m->Load(fs);
+            fs->advance(2 * 4 + 5 * sizeof(WaveForm)); // mode, tcm, scale, rotate, scroll
+            Msg("! Matrix %s skipped..", name);
         }
         fs->close();
     }
@@ -232,10 +86,11 @@ ResourceManager::OnDeviceCreate
             BlenderDescription desc;
             chunk->r(&desc, sizeof (desc));
 
-            auto b = CreateBlender(desc.class_id);
+            //auto b = CreateBlender(desc.class_id);
             
-            if (b)
+            if (0)
             {
+#if 0
                 if (b->GetDescription().version != desc.version)
                 {
                     Msg("! Version conflict in blender '%s'", desc.name);
@@ -247,6 +102,7 @@ ResourceManager::OnDeviceCreate
                 std::string name{ desc.name };
                 auto &iterator = blenders_.insert(std::make_pair(name, b));
                 R_ASSERT2(iterator.second, "shader.xr - found duplicate name");
+#endif
             }
             else
             {
@@ -260,8 +116,6 @@ ResourceManager::OnDeviceCreate
     }
 
     FS.r_close(rstream);
-
-    texture_description_.Load();
 }
 
 
@@ -271,33 +125,10 @@ ResourceManager::OnDeviceCreate
 void
 ResourceManager::OnDeviceDestroy()
 {
-    texture_description_.Unload();
-
-    // Destroy blenders
-    for (auto&& blender : blenders_)
-    {
-        R_ASSERT(blender.second.unique());
-    }
-    blenders_.clear();
-
-    // Destroy matrices
-    for (auto&& matrix : matrices_)
-    {
-        R_ASSERT(matrix.second.unique());
-    }
-    matrices_.clear();
-
-    // Destroy constants
-    for (auto&& constant : constants_)
-    {
-        R_ASSERT(constant.second.unique());
-    }
-    constants_.clear();
-
-    ScriptingUnload();
 }
 
 
+#if 0
 /**
  *
  */
@@ -391,3 +222,4 @@ ResourceManager::RemoveTexturesExtension
                   , remove_extension
     );
 }
+#endif
