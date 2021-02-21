@@ -34,7 +34,7 @@ public:
 
     void SetCacheXform(Fmatrix &mView, Fmatrix &mProject) final;
 
-private:
+//private:
     void AddStatic(dxRender_Visual &vis, CFrustum &frustum);
     void AddStaticLeaf(dxRender_Visual &vis);
     void AddVisualInstance(dxRender_Visual &vis);

@@ -1,9 +1,9 @@
 #ifndef DEVICE_DEVICE_H_
 #define DEVICE_DEVICE_H_
 
-#include <xrEngine/device.h>
+#include "device/memory.h"
 
-#include <3rdparty/VulkanMemoryAllocator/src/vk_mem_alloc.h>
+#include <xrEngine/device.h>
 
 #include <optional>
 
@@ -33,6 +33,11 @@ public:
 
     std::vector<vk::UniqueCommandBuffer> AllocateCmdBuffers(QueueType pool, size_t count, bool secondary=true) const;
 
+    // Memory management
+    BufferPtr AllocateHostBuffer(size_t size) const;
+    BufferPtr AllocateDeviceBuffer(size_t size, BufferType type) const;
+    ImagePtr  AllocateDeviceImage(vk::Extent3D const& extent, vk::Format format, ImageType type) const;
+
 private:
     void CreateInstance();
     void SelectGpu();
@@ -51,9 +56,6 @@ private:
     vk::Format SelectDepthStencilFormat() const;
     std::pair<vk::Format, vk::ColorSpaceKHR> SelectColorFormat() const;
 
-    vk::UniqueDevice m_Device;
-    std::array<vk::Queue, MAX_QUEUES> m_Queues;
-
 public:
     struct State_t
     {
@@ -68,7 +70,10 @@ public:
         vk::Result deviceState;
     } State;
 
-private:
+//private:
+    vk::UniqueDevice m_Device;
+    std::array<vk::Queue, MAX_QUEUES> m_Queues;
+
     static constexpr auto VkUndefined = std::numeric_limits<uint32_t>::max();
 
     struct PhyCaps_t
@@ -83,7 +88,7 @@ private:
         vk::SurfaceCapabilitiesKHR surface;
         std::vector<vk::PresentModeKHR> presentModes;
         std::vector<vk::SurfaceFormatKHR> formats;
-    } m_WsiCaps;
+    } wsi_caps_;
 
     struct SwapchainParams_t
     {
@@ -91,7 +96,7 @@ private:
         vk::Format depthFormat;
         vk::Extent2D extent;
         bool fullScreen{ false };
-    } m_SwapchainParams;
+    } swapchain_params_;
 
     vk::UniqueInstance instance_;
     vk::PhysicalDevice gpu_;

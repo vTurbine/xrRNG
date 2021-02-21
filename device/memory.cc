@@ -54,15 +54,18 @@ const vk::AllocationCallbacks hostAllocationInfo
 };
 }
 
-#if 0
 //-----------------------------------------------------------------------------
-DeviceAllocation::DeviceAllocation(const VmaAllocator* allocator)
-    : allocatorRef(allocator)
+DeviceAllocation::DeviceAllocation
+        ( VmaAllocator const *allocator
+        )
+    : allocator_ref_(allocator)
 {
 }
 
 //-----------------------------------------------------------------------------
-DeviceBuffer::DeviceBuffer(const VmaAllocator* allocation)
+DeviceBuffer::DeviceBuffer
+        ( VmaAllocator const *allocation
+        )
     : DeviceAllocation(allocation)
 {
 }
@@ -70,15 +73,9 @@ DeviceBuffer::DeviceBuffer(const VmaAllocator* allocation)
 //-----------------------------------------------------------------------------
 DeviceBuffer::~DeviceBuffer()
 {
-    Release();
+    vmaDestroyBuffer(*allocator_ref_, buffer, allocation);
 }
 
-//-----------------------------------------------------------------------------
-void DeviceBuffer::Release()
-{
-    vmaDestroyBuffer(*allocatorRef, buffer, allocation);
-}
-#endif
 
 using namespace xrrng;
 
@@ -106,11 +103,14 @@ Device::DestroyMemoryAllocator()
     //m_XferBuffers.clear();
 }
 
-#if 0
+
 //-----------------------------------------------------------------------------
-HostBuffer* CHW::AllocateHostBuffer(size_t size) const
+BufferPtr
+Device::AllocateHostBuffer
+        ( size_t size
+        ) const
 {
-    auto* buffer = new DeviceBuffer(&m_Allocator);
+    auto buffer = std::make_unique<DeviceBuffer>(&allocator_);
 
     const auto& bufferInfo = vk::BufferCreateInfo()
         .setSize(size)
@@ -119,24 +119,29 @@ HostBuffer* CHW::AllocateHostBuffer(size_t size) const
 
     VmaAllocationCreateInfo allocInfo{};
     allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-    allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT; // persistently mapped
 
     const auto result = vmaCreateBuffer(
-        m_Allocator,
+        allocator_,
         &static_cast<VkBufferCreateInfo>(bufferInfo),
         &allocInfo,
         &buffer->buffer,
         &buffer->allocation,
-        &buffer->allocationInfo);
+        &buffer->allocation_info);
     VERIFY(result == VK_SUCCESS);
 
     return buffer;
 }
 
+
 //-----------------------------------------------------------------------------
-DeviceBuffer* CHW::AllocateDeviceBuffer(size_t size, DeviceBuffer::Type type)
+BufferPtr
+Device::AllocateDeviceBuffer
+        ( size_t        size
+        , BufferType    type
+        ) const
 {
-    auto* buffer = new DeviceBuffer(&m_Allocator);
+    auto buffer = std::make_unique<DeviceBuffer>(&allocator_);
 
     auto bufferInfo = vk::BufferCreateInfo()
         .setSize(size)
@@ -145,13 +150,13 @@ DeviceBuffer* CHW::AllocateDeviceBuffer(size_t size, DeviceBuffer::Type type)
 
     switch (type)
     {
-    case DeviceBuffer::Type::Vertex:
+    case BufferType::Vertex:
         bufferInfo.usage |= vk::BufferUsageFlagBits::eVertexBuffer;
         break;
-    case DeviceBuffer::Type::Index:
+    case BufferType::Index:
         bufferInfo.usage |= vk::BufferUsageFlagBits::eIndexBuffer;
         break;
-    case DeviceBuffer::Type::Constant:
+    case BufferType::Uniform:
         bufferInfo.usage |= vk::BufferUsageFlagBits::eUniformBuffer;
         break;
     default:
@@ -162,17 +167,19 @@ DeviceBuffer* CHW::AllocateDeviceBuffer(size_t size, DeviceBuffer::Type type)
     allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
     const auto result = vmaCreateBuffer(
-        m_Allocator,
+        allocator_,
         &static_cast<VkBufferCreateInfo>(bufferInfo),
         &allocInfo,
         &buffer->buffer,
         &buffer->allocation,
-        &buffer->allocationInfo);
+        &buffer->allocation_info);
     VERIFY(result == VK_SUCCESS);
 
     return buffer;
 }
 
+
+#if 0
 //-----------------------------------------------------------------------------
 void CHW::Transfer(
     HostBuffer* hostBuffer,
@@ -203,40 +210,61 @@ void CHW::Transfer(
     m_Queues[QueueType::XFER].submit(submitInfo, {});
     m_Queues[QueueType::XFER].waitIdle();
 }
+#endif
 
 //-----------------------------------------------------------------------------
-DeviceImage::DeviceImage(const VmaAllocator* allocation)
+DeviceImage::DeviceImage
+        ( VmaAllocator const     *allocation
+        )
     : DeviceAllocation(allocation)
 {
 }
 
+
 //-----------------------------------------------------------------------------
-DeviceImage::DeviceImage(vk::Image image)
+DeviceImage::DeviceImage
+        ( vk::Image     image_
+        )
     : DeviceAllocation(nullptr)
+    , image(image_)
 {
-    this->image = image;
 }
+
 
 //-----------------------------------------------------------------------------
 DeviceImage::~DeviceImage()
 {
-    Release();
-}
-
-//-----------------------------------------------------------------------------
-void DeviceImage::Release()
-{
-    if (allocatorRef == nullptr)
+    if (allocator_ref_ == nullptr)
     {
         return;
     }
-    vmaDestroyImage(*allocatorRef, image, allocation);
+    vmaDestroyImage(*allocator_ref_, image, allocation);
 }
 
+
 //-----------------------------------------------------------------------------
-DeviceImage* CHW::AllocateDeviceImage(const vk::Extent3D& extent, vk::Format format, DeviceImage::Type type)
+void
+DeviceImage::SetName
+        ( std::string const & name
+        )
 {
-    auto* image = new DeviceImage(&m_Allocator);
+    auto const& info = vk::DebugUtilsObjectNameInfoEXT()
+        .setObjectType(vk::ObjectType::eImage)
+        .setObjectHandle(reinterpret_cast<uint64_t>(image))
+        .setPObjectName(name.c_str());
+    device.m_Device->setDebugUtilsObjectNameEXT(info);
+}
+
+
+//-----------------------------------------------------------------------------
+ImagePtr
+Device::AllocateDeviceImage
+        ( vk::Extent3D const   &extent
+        , vk::Format            format
+        , ImageType             type
+        ) const
+{
+    auto image = std::make_unique<DeviceImage>(&allocator_);
 
     image->extent = extent;
     image->format = format;
@@ -248,7 +276,6 @@ DeviceImage* CHW::AllocateDeviceImage(const vk::Extent3D& extent, vk::Format for
         .setImageType(vk::ImageType::e2D) // TODO: 3D for LUTs
         .setTiling(vk::ImageTiling::eOptimal)
         .setInitialLayout(vk::ImageLayout::eUndefined)
-        .setUsage(vk::ImageUsageFlagBits::eSampled) // TODO: performance drop?
         .setSamples(vk::SampleCountFlagBits::e1) // TODO: MSAA
         .setSharingMode(vk::SharingMode::eExclusive)
         .setMipLevels(1) // TODO
@@ -256,14 +283,15 @@ DeviceImage* CHW::AllocateDeviceImage(const vk::Extent3D& extent, vk::Format for
 
     switch (image->type)
     {
-    case DeviceImage::Type::Texture:
+    case ImageType::Texture:
         imageInfo.usage = vk::ImageUsageFlagBits::eTransferDst;
         break;
-    case DeviceImage::Type::ColorAttachment:
+    case ImageType::RenderTarget:
         imageInfo.usage = vk::ImageUsageFlagBits::eColorAttachment;
         break;
-    case DeviceImage::Type::DepthAttachment:
-        imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment;
+    case ImageType::Depth:
+        imageInfo.usage = vk::ImageUsageFlagBits::eDepthStencilAttachment
+            | vk::ImageUsageFlagBits::eTransferDst;
         break;
     default:
         FATAL_F("Unexpected image type");
@@ -273,7 +301,7 @@ DeviceImage* CHW::AllocateDeviceImage(const vk::Extent3D& extent, vk::Format for
     allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 
     auto result = vmaCreateImage(
-        m_Allocator,
+        allocator_,
         &static_cast<VkImageCreateInfo>(imageInfo),
         &allocInfo,
         &image->image,
@@ -283,4 +311,3 @@ DeviceImage* CHW::AllocateDeviceImage(const vk::Extent3D& extent, vk::Format for
 
     return image;
 }
-#endif

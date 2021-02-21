@@ -15,6 +15,8 @@
 
 using namespace xrrng;
 
+FrontEnd frontend;
+
 //-----------------------------------------------------------------------------
 void
 FrontEnd::OnDeviceCreate
@@ -38,6 +40,16 @@ FrontEnd::OnDeviceCreate
         frame_datas_[i].StaticGeometryList.reserve(R_MAX_STATIC_OBJS);
 
         // Create resources
+        frame_datas_[i].base_depth = device.AllocateDeviceImage(
+            {
+                device.swapchain_params_.extent.width,
+                device.swapchain_params_.extent.height,
+                1
+            },
+            device.swapchain_params_.depthFormat,
+            ImageType::Depth
+        );
+        frame_datas_[i].base_depth->SetName("base_depth#" + std::to_string(i));
         // ...
 
         // Pre-record command buffers
@@ -249,7 +261,7 @@ FrontEnd::Calculate()
             }
         }
 
-        // Soft front to back
+        // Sort front to back
         std::sort(
             fd.StaticGeometryList.begin(),
             fd.StaticGeometryList.end(),

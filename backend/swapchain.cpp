@@ -49,9 +49,9 @@ Device::CreateSurface(HWND window)
     R_ASSERT2(wsiSupported, "Selected GPU isn't compatible with WSI");
 
     // Get WSI caps
-    m_WsiCaps.surface       = gpu_.getSurfaceCapabilitiesKHR(m_WsiSurface.get());
-    m_WsiCaps.presentModes  = gpu_.getSurfacePresentModesKHR(m_WsiSurface.get());
-    m_WsiCaps.formats       = gpu_.getSurfaceFormatsKHR(m_WsiSurface.get());
+    wsi_caps_.surface       = gpu_.getSurfaceCapabilitiesKHR(m_WsiSurface.get());
+    wsi_caps_.presentModes  = gpu_.getSurfacePresentModesKHR(m_WsiSurface.get());
+    wsi_caps_.formats       = gpu_.getSurfaceFormatsKHR(m_WsiSurface.get());
 
     // TODO: check for exclusive fullscreen mode
 }
@@ -64,37 +64,37 @@ Device::CreateSwapchain
         , size_t height
         )
 {
-    m_SwapchainParams.fullScreen = psDeviceFlags.is(rsFullscreen);
+    swapchain_params_.fullScreen = psDeviceFlags.is(rsFullscreen);
 
     // Select base attachment color format
     const auto& [colorFormat, colorSpace] = SelectColorFormat();
-    m_SwapchainParams.colorFormat = colorFormat;
+    swapchain_params_.colorFormat = colorFormat;
 
     // Select base depth attachment format
-    m_SwapchainParams.depthFormat = SelectDepthStencilFormat();
+    swapchain_params_.depthFormat = SelectDepthStencilFormat();
 
     // Set surface extents
-    if (m_WsiCaps.surface.currentExtent.width == VkUndefined)
+    if (wsi_caps_.surface.currentExtent.width == VkUndefined)
     {
-        m_SwapchainParams.extent.setWidth(width);
-        m_SwapchainParams.extent.setHeight(height);
+        swapchain_params_.extent.setWidth(width);
+        swapchain_params_.extent.setHeight(height);
     }
     else
     {
-        m_SwapchainParams.extent = m_WsiCaps.surface.currentExtent;
+        swapchain_params_.extent = wsi_caps_.surface.currentExtent;
     }
 
     // Composite alpha
     const auto composite_alpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
     R_ASSERT2(
-        m_WsiCaps.surface.supportedCompositeAlpha & composite_alpha,
+        wsi_caps_.surface.supportedCompositeAlpha & composite_alpha,
         "No suitable alpha blending mode");
 
     // Select presentation mode
     const auto presentMode = SelectPresentationMode();
 
     // Select images count
-    const auto minImageCount = m_WsiCaps.surface.minImageCount;
+    const auto minImageCount = wsi_caps_.surface.minImageCount;
     Msg("* RVK(HW): Using %d-images chain", minImageCount);
 
     // Select images usage
@@ -102,20 +102,20 @@ Device::CreateSwapchain
         vk::ImageUsageFlagBits::eTransferDst | // only write to attachment
         vk::ImageUsageFlagBits::eColorAttachment;
     R_ASSERT2(
-        m_WsiCaps.surface.supportedUsageFlags & usage,
+        wsi_caps_.surface.supportedUsageFlags & usage,
         "WSI surface can't be used as target image");
 
     // Create swapchain
     const auto& swapchain_info = vk::SwapchainCreateInfoKHR()
         .setPreTransform(vk::SurfaceTransformFlagBitsKHR::eIdentity)
         .setCompositeAlpha(composite_alpha)
-        .setImageFormat(m_SwapchainParams.colorFormat)
+        .setImageFormat(swapchain_params_.colorFormat)
         .setImageColorSpace(colorSpace)
         .setPresentMode(presentMode)
         .setMinImageCount(minImageCount)
         .setImageUsage(usage)
         .setImageArrayLayers(1)
-        .setImageExtent(m_SwapchainParams.extent)
+        .setImageExtent(swapchain_params_.extent)
         .setSurface(m_WsiSurface.get());
 
     m_Swapchain = m_Device->createSwapchainKHRUnique(swapchain_info);
@@ -134,8 +134,8 @@ Device::SelectColorFormat() const
 
     R_ASSERT2(psCurrentBPP == 32, "Only 32bpp is supported");
 
-    if (m_WsiCaps.formats.size() == 1 &&
-        m_WsiCaps.formats[0].format == vk::Format::eUndefined)
+    if (wsi_caps_.formats.size() == 1 &&
+        wsi_caps_.formats[0].format == vk::Format::eUndefined)
     {
         // WSI doesn't care about format. Choose the best one.
         result =
@@ -146,13 +146,13 @@ Device::SelectColorFormat() const
         for (const auto format : desiredColors32)
         {
              const auto& it = std::find_if(
-                m_WsiCaps.formats.cbegin(),
-                m_WsiCaps.formats.cend(),
+                wsi_caps_.formats.cbegin(),
+                wsi_caps_.formats.cend(),
                 [&](const auto supportedFormat)
                 {
                     return supportedFormat.format == format;
                 });
-            if (it != m_WsiCaps.formats.cend())
+            if (it != wsi_caps_.formats.cend())
             {
                 result = std::make_pair(it->format, it->colorSpace);
                 break;
@@ -195,7 +195,7 @@ Device::SelectPresentationMode() const
     auto selectedMode = vk::PresentModeKHR::eFifo; // always supported
     if (psDeviceFlags.test(rsVSync))
     {
-        const auto& supportedModes = m_WsiCaps.presentModes;
+        const auto& supportedModes = wsi_caps_.presentModes;
 
         const auto& it = std::find_if(
                 supportedModes.cbegin(),
@@ -314,7 +314,7 @@ Device::AdoptSwapchainImages()
 
     auto viewInfo = vk::ImageViewCreateInfo()
         .setViewType(vk::ImageViewType::e2D)
-        .setFormat(m_SwapchainParams.colorFormat)
+        .setFormat(swapchain_params_.colorFormat)
         .setSubresourceRange(subresourceRange);
 
     auto index = 0;

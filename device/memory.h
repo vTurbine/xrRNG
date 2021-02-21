@@ -1,8 +1,8 @@
 #ifndef DEVICE_MEMORY_H_
 #define DEVICE_MEMORY_H_
 
-#include <memory>
-#include <vk_mem_alloc.h>
+#include <3rdparty/VulkanMemoryAllocator/src/vk_mem_alloc.h>
+
 
 enum class BufferType //TODO: replace by VK_BUFFER...
 {
@@ -15,7 +15,7 @@ enum class BufferType //TODO: replace by VK_BUFFER...
 enum class ImageType
 {
     Texture,
-    Buffer,
+    RenderTarget,
     Depth
 };
 
@@ -32,7 +32,7 @@ class DeviceBuffer
     : public DeviceAllocation
 {
 public:
-    explicit DeviceBuffer(const VmaAllocator *allocator);
+    explicit DeviceBuffer(VmaAllocator const *allocator);
     ~DeviceBuffer();
 
     VkBuffer buffer;
@@ -44,17 +44,19 @@ using BufferPtr = std::unique_ptr<DeviceBuffer>;
 class DeviceImage
     : public DeviceAllocation
 {
-    friend class Hw;
-
-    std::uint32_t layers_count; ///< Color layers
-    std::uint32_t levels_count; ///< Mipmap levels
-    vk::Extent3D  extent; ///< Image dimensions
-    vk::Format    format; ///< Image format
-    ImageType     type; ///< Type of image
 public:
-    explicit DeviceImage(const VmaAllocator *allocator);
+    std::uint32_t   layers_count; //< Color layers
+    std::uint32_t   levels_count; //< Mipmap levels
+    vk::Extent3D    extent;       //< Image dimensions
+    vk::Format      format;       //< Image format
+    vk::ImageLayout layout{ vk::ImageLayout::eUndefined };  //< Current layout
+    ImageType       type;         //< Type of image
+
+    explicit DeviceImage(VmaAllocator const *allocator);
+    explicit DeviceImage(vk::Image image_);
     ~DeviceImage();
 
+    void SetName(std::string const &name);
     vk::ImageView CreateView();
 
     VkImage image;

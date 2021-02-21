@@ -17,7 +17,6 @@ namespace xrrng
 /*!
  * Statically created objects
  */
-FrontEnd        frontend;
 RenderFactory   factory;
 UiRender        ui;
 
