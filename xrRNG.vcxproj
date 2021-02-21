@@ -190,13 +190,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Externals\volk\volk.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mixed|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    <ClCompile Include="3rdparty\volk\volk.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Mixed|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="backend\backend.cc" />
     <ClCompile Include="backend\swapchain.cpp" />
@@ -253,14 +248,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Externals\volk\volk.h" />
     <ClInclude Include="..\xrRender\Light_Package.h" />
+    <ClInclude Include="3rdparty\volk\volk.h" />
     <ClInclude Include="3rdparty\VulkanMemoryAllocator\src\vk_mem_alloc.h" />
     <ClInclude Include="backend\backend.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="console\console.h" />
     <ClInclude Include="device\debug.h" />
     <ClInclude Include="device\device.h" />
+    <ClInclude Include="device\memory.h" />
     <ClInclude Include="factory\console\render.h" />
     <ClInclude Include="factory\environment\desc_mixer_render.h" />
     <ClInclude Include="factory\environment\desc_render.h" />

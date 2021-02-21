@@ -1,3 +1,6 @@
 [submodule "3rdparty/VulkanMemoryAllocator"]
 	path = 3rdparty/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
+[submodule "3rdparty/volk"]
+	path = 3rdparty/volk
+	url = https://github.com/zeux/volk

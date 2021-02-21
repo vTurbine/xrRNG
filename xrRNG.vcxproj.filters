@@ -2,9 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="entry_point.cc" />
-    <ClCompile Include="..\..\..\Externals\volk\volk.c">
-      <Filter>3rdparty\volk</Filter>
-    </ClCompile>
     <ClCompile Include="console\console.cc">
       <Filter>console</Filter>
     </ClCompile>
@@ -146,6 +143,9 @@
     <ClCompile Include="resources\manager.cc">
       <Filter>resources</Filter>
     </ClCompile>
+    <ClCompile Include="3rdparty\volk\volk.c">
+      <Filter>3rdparty\volk</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -219,9 +219,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Externals\volk\volk.h">
-      <Filter>3rdparty\volk</Filter>
-    </ClInclude>
     <ClInclude Include="console\console.h">
       <Filter>console</Filter>
     </ClInclude>
@@ -373,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="resources\manager.h">
       <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="device\memory.h">
+      <Filter>device</Filter>
+    </ClInclude>
+    <ClInclude Include="3rdparty\volk\volk.h">
+      <Filter>3rdparty\volk</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
