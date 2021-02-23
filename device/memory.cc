@@ -54,6 +54,8 @@ const vk::AllocationCallbacks hostAllocationInfo
 };
 }
 
+using namespace xrrng;
+
 //-----------------------------------------------------------------------------
 DeviceAllocation::DeviceAllocation
         ( VmaAllocator const *allocator
@@ -70,14 +72,27 @@ DeviceBuffer::DeviceBuffer
 {
 }
 
+
+//-----------------------------------------------------------------------------
+void
+DeviceBuffer::SetName
+        ( std::string const & name
+        )
+{
+    auto const& info = vk::DebugUtilsObjectNameInfoEXT()
+        .setObjectType(vk::ObjectType::eBuffer)
+        .setObjectHandle(reinterpret_cast<uint64_t>(buffer))
+        .setPObjectName(name.c_str());
+    device.m_Device->setDebugUtilsObjectNameEXT(info);
+}
+
+
 //-----------------------------------------------------------------------------
 DeviceBuffer::~DeviceBuffer()
 {
     vmaDestroyBuffer(*allocator_ref_, buffer, allocation);
 }
 
-
-using namespace xrrng;
 
 //-----------------------------------------------------------------------------
 void
@@ -127,7 +142,8 @@ Device::AllocateHostBuffer
         &allocInfo,
         &buffer->buffer,
         &buffer->allocation,
-        &buffer->allocation_info);
+        &buffer->allocation_info
+    );
     VERIFY(result == VK_SUCCESS);
 
     return buffer;

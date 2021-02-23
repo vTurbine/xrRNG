@@ -196,6 +196,7 @@
     <ClCompile Include="backend\backend.cc" />
     <ClCompile Include="backend\swapchain.cpp" />
     <ClCompile Include="console\console.cc" />
+    <ClCompile Include="device\debug.cpp" />
     <ClCompile Include="device\device.cc" />
     <ClCompile Include="device\memory.cc" />
     <ClCompile Include="entry_point.cc">
@@ -218,8 +219,11 @@
     <ClCompile Include="factory\ui\shader.cc" />
     <ClCompile Include="factory\wallmark\array.cc" />
     <ClCompile Include="frontend\render.cc" />
+    <ClCompile Include="frontend\tasks\00_copy_n_clear.cc" />
+    <ClCompile Include="frontend\tasks\01_dbg__static_boxes.cc" />
     <ClCompile Include="frontend\tasks\menu_pass.cc" />
     <ClCompile Include="frontend\tasks\scene_pass_dummy.cc" />
+    <ClCompile Include="legacy\debug\du_box.cpp" />
     <ClCompile Include="legacy\legacy.cc" />
     <ClCompile Include="legacy\loader.cc" />
     <ClCompile Include="legacy\raffle\Animation.cpp" />
@@ -277,6 +281,7 @@
     <ClInclude Include="frontend\render.h" />
     <ClInclude Include="frontend\tasks\menu_pass.h" />
     <ClInclude Include="frontend\tasks\scene_pass_dummy.h" />
+    <ClInclude Include="legacy\debug\du_box.h" />
     <ClInclude Include="legacy\legacy.h" />
     <ClInclude Include="legacy\raffle\Animation.h" />
     <ClInclude Include="legacy\raffle\AnimationKeyCalculate.h" />

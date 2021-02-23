@@ -38,6 +38,10 @@ public:
     BufferPtr AllocateDeviceBuffer(size_t size, BufferType type) const;
     ImagePtr  AllocateDeviceImage(vk::Extent3D const& extent, vk::Format format, ImageType type) const;
 
+    // Debug
+    void GpuMarkerBegin(vk::CommandBuffer cmdb, std::string const &name, std::array<float, 4> const &color) const;
+    void GpuMarkerEnd(vk::CommandBuffer cmdb) const;
+
 private:
     void CreateInstance();
     void SelectGpu();
@@ -51,6 +55,8 @@ private:
     void CreateCmdBufferPools();
     void CreateMemoryAllocator();
     void DestroyMemoryAllocator();
+
+    void InitDebug();
 
     vk::PresentModeKHR SelectPresentationMode() const;
     vk::Format SelectDepthStencilFormat() const;

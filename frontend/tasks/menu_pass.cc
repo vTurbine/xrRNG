@@ -18,6 +18,12 @@ MenuPass::Build
         ( vk::CommandBuffer &cmdL
         )
 {
+    device.GpuMarkerBegin(
+        cmdL,
+        name_,
+        { 1.0f, 0.0f, 1.0f, 1.0f }
+    );
+
     /* Temporary clear pass */
 
     static int i = 0;
@@ -58,5 +64,6 @@ MenuPass::Build
         vk::DependencyFlagBits::eDeviceGroup,
         {}, {}, { barrier });
 
+    device.GpuMarkerEnd(cmdL);
     i++;
 }

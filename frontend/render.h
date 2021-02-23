@@ -14,7 +14,7 @@ public:
     explicit RenderTask(char const *name) { name_ = name; }
     virtual void Build(vk::CommandBuffer& cmdL) = 0;
 
-private:
+protected:
     std::string name_;
 };
 

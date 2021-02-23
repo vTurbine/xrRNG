@@ -70,6 +70,8 @@ Device::Create
         , size_t    height
 )
 {
+    InitDebug();
+
     CreateInstance();
 
     SelectGpu();

@@ -35,6 +35,7 @@ public:
     explicit DeviceBuffer(VmaAllocator const *allocator);
     ~DeviceBuffer();
 
+    void SetName(std::string const &name);
     VkBuffer buffer;
 };
 
