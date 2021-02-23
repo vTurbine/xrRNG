@@ -6,5 +6,6 @@ class MenuPass
 public:
     MenuPass();
 
-    void Build(vk::CommandBuffer &cmdL) final;
+    void Init() final;
+    void Exec(vk::CommandBuffer &cmdL) final;
 };

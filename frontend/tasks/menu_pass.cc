@@ -14,7 +14,13 @@ MenuPass::MenuPass()
 
 
 void
-MenuPass::Build
+MenuPass::Init()
+{
+}
+
+
+void
+MenuPass::Exec
         ( vk::CommandBuffer &cmdL
         )
 {
@@ -25,8 +31,8 @@ MenuPass::Build
     );
 
     /* Temporary clear pass */
+    auto const i = device.State.imageIndex;
 
-    static int i = 0;
     auto subResourceRange = vk::ImageSubresourceRange()
         .setAspectMask(vk::ImageAspectFlagBits::eColor)
         .setBaseMipLevel(0)
@@ -65,5 +71,4 @@ MenuPass::Build
         {}, {}, { barrier });
 
     device.GpuMarkerEnd(cmdL);
-    i++;
 }

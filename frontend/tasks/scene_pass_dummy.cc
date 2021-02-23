@@ -15,7 +15,16 @@ ScenePass::ScenePass()
 
 
 void
-ScenePass::Build
+ScenePass::Init()
+{
+    extern void Initialize_01();
+
+    Initialize_01();
+}
+
+
+void
+ScenePass::Exec
         ( vk::CommandBuffer &cmdL
         )
 {
@@ -26,7 +35,7 @@ ScenePass::Build
     );
      
     CopyClear(cmdL);
-    //DebugDrawStaticBboxes(cmdL);
+    DebugDrawStaticBboxes(cmdL);
 
     device.GpuMarkerEnd(cmdL);
 }

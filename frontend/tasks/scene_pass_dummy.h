@@ -1,12 +1,13 @@
 #include "frontend/render.h"
 
-class ScenePass
+class ScenePass final
     : public RenderTask
 {
 public:
     ScenePass();
 
-    void Build(vk::CommandBuffer &cmdL) final;
+    void Init() final;
+    void Exec(vk::CommandBuffer &cmdL) final;
 
 private:
     void CopyClear(vk::CommandBuffer &cmdb);

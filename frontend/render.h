@@ -12,7 +12,8 @@ class RenderTask
 {
 public:
     explicit RenderTask(char const *name) { name_ = name; }
-    virtual void Build(vk::CommandBuffer& cmdL) = 0;
+    virtual void Init() = 0;
+    virtual void Exec(vk::CommandBuffer& cmdL) = 0;
 
 protected:
     std::string name_;
@@ -42,6 +43,9 @@ public:
     std::vector<vk::UniqueCommandBuffer>    menu_cmds_;
     std::vector<vk::UniqueCommandBuffer>    scene_cmds_;
     std::vector<FrameData>                  frame_datas_;
+
+    std::unique_ptr<RenderTask> menu;
+    std::unique_ptr<RenderTask> scene;
 };
 
 extern FrontEnd frontend;

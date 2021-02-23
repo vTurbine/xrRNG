@@ -65,13 +65,11 @@ private:
 public:
     struct State_t
     {
-        std::vector<vk::Image> colorImages;
-        std::vector<vk::ImageView> colorViews;
-        //std::vector<DepthAttachment> defaultDepths;
-        std::vector<vk::UniqueFramebuffer> framebuffers;
-        std::vector<vk::UniqueSemaphore> acquireSemaphores;
-        std::vector<vk::UniqueSemaphore> renderSemaphores;
-        std::vector<vk::UniqueFence> frameFences;
+        std::vector<vk::Image>              colorImages;
+        std::vector<vk::ImageView>          colorViews;
+        std::vector<vk::UniqueSemaphore>    acquireSemaphores;
+        std::vector<vk::UniqueSemaphore>    renderSemaphores;
+        std::vector<vk::UniqueFence>        frameFences;
         uint32_t imageIndex{ 0 };
         vk::Result deviceState;
     } State;

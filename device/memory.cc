@@ -273,6 +273,33 @@ DeviceImage::SetName
 
 
 //-----------------------------------------------------------------------------
+vk::ImageView
+DeviceImage::GetView()
+{
+    // TODO: handle cases with different subres
+    if (!view_)
+    {
+        const auto& range = vk::ImageSubresourceRange()
+            .setAspectMask(
+                type == ImageType::Depth
+                    ? vk::ImageAspectFlagBits::eDepth
+                    : vk::ImageAspectFlagBits::eColor)
+            .setLayerCount(1)
+            .setLevelCount(1);
+
+        const auto& createInfo = vk::ImageViewCreateInfo()
+            .setImage(image)
+            .setViewType(vk::ImageViewType::e2D)
+            .setFormat(format)
+            .setSubresourceRange(range);
+        view_ = device.m_Device->createImageViewUnique(createInfo);
+    }
+
+    return view_.get();
+}
+
+
+//-----------------------------------------------------------------------------
 ImagePtr
 Device::AllocateDeviceImage
         ( vk::Extent3D const   &extent

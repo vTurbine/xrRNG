@@ -28,12 +28,12 @@ FrontEnd::OnDeviceCreate
 
     auto const num_frames = backend.GetContextsNum();
 
+    menu  = std::make_unique<MenuPass>();
+    scene = std::make_unique<ScenePass>();
+
     frame_datas_.resize(num_frames);
     menu_cmds_  = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
-    scene_cmds_ = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
-
-    MenuPass menu;
-    ScenePass scene;
+    scene_cmds_ = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames, false); // TODO: seems all need to be recorded in primary buffer because of RPs
 
     for (int i = 0; i < num_frames; ++i)
     {
@@ -51,41 +51,15 @@ FrontEnd::OnDeviceCreate
         );
         frame_datas_[i].base_depth->SetName("base_depth#" + std::to_string(i));
         // ...
-
-        // Pre-record command buffers
-
-        /*
-         * Here should be rendergraph
-         */
-
-        { // Menu
-            auto& cmdL = menu_cmds_[i].get();
-
-            auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
-
-            auto beginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
-                .setPInheritanceInfo(&inheritanceInfo);
-
-            cmdL.begin(beginInfo);
-            menu.Build(cmdL);
-            cmdL.end();
-        }
-
-        { // Game
-            auto& cmdL = scene_cmds_[i].get();
-
-            auto inheritanceInfo = vk::CommandBufferInheritanceInfo();
-
-            auto beginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
-                .setPInheritanceInfo(&inheritanceInfo);
-            
-            cmdL.begin(beginInfo);
-            scene.Build(cmdL);
-            cmdL.end();
-        }
     }
+
+    // Pre-record command buffers
+
+    /*
+     * Here should be rendergraph
+     */
+    menu->Init();
+    scene->Init();
 }
 
 
@@ -295,7 +269,7 @@ FrontEnd::Render()
     // Menu rendering
     if (g_pGamePersistent->IsMainMenuActive())
     {
-        cmdL.executeCommands(1, &menu_cmds_[device.State.imageIndex].get());
+        menu->Exec(cmdL);
         return;
     }
 
@@ -307,7 +281,7 @@ FrontEnd::Render()
 
     // Submit list
     // ...
-    cmdL.executeCommands(1, &scene_cmds_[device.State.imageIndex].get());
+    scene->Exec(cmdL);
 }
 
 

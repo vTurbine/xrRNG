@@ -58,9 +58,11 @@ public:
     ~DeviceImage();
 
     void SetName(std::string const &name);
-    vk::ImageView CreateView();
+    vk::ImageView GetView();
 
     VkImage image;
+private:
+    vk::UniqueImageView view_;
 };
 
 using ImagePtr = std::unique_ptr<DeviceImage>;

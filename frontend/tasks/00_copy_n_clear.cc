@@ -12,7 +12,7 @@ ScenePass::CopyClear
         ( vk::CommandBuffer &cmdL
         )
 {
-    static int i = 0;
+    auto const i = device.State.imageIndex;
     std::array<vk::ImageMemoryBarrier, 2> barriers;
 
     auto subResourceRange = vk::ImageSubresourceRange()
@@ -68,11 +68,11 @@ ScenePass::CopyClear
 
     barriers[0]
         .setOldLayout(vk::ImageLayout::eGeneral)
-        .setNewLayout(vk::ImageLayout::ePresentSrcKHR);
+        .setNewLayout(vk::ImageLayout::eColorAttachmentOptimal);
 
     barriers[1]
         .setOldLayout(vk::ImageLayout::eGeneral)
-        .setNewLayout(vk::ImageLayout::eDepthAttachmentOptimal);
+        .setNewLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
     cmdL.pipelineBarrier(
         vk::PipelineStageFlagBits::eAllGraphics,
@@ -80,7 +80,5 @@ ScenePass::CopyClear
         vk::DependencyFlagBits::eDeviceGroup,
         {}, {}, barriers);
 
-    ::frontend.frame_datas_[i].base_depth->layout = vk::ImageLayout::eDepthAttachmentOptimal;
-
-    i++;
+    ::frontend.frame_datas_[i].base_depth->layout = vk::ImageLayout::eDepthStencilAttachmentOptimal;
 }

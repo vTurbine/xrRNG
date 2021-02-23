@@ -79,4 +79,5 @@ Device::GpuMarkerEnd
         ( vk::CommandBuffer             cmdb
         ) const
 {
+    cmdb.endDebugUtilsLabelEXT();
 }
