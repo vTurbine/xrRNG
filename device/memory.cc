@@ -105,7 +105,11 @@ Device::CreateMemoryAllocator()
     vmaCreateAllocator(&allocatorInfo, &allocator_);
 
     // Allocate command buffer(s) for memory transfer
-    //m_XferBuffers = AllocateCmdBuffer(CHW::QueueType::XFER, 1);
+    xfer_cmdbs_ = AllocateCmdBuffers(
+        Device::QueueType::XFER,
+        State.colorImages.size(),
+        false  // primary
+    );
 }
 
 
@@ -114,8 +118,7 @@ void
 Device::DestroyMemoryAllocator()
 {
     vmaDestroyAllocator(allocator_);
-
-    //m_XferBuffers.clear();
+    xfer_cmdbs_.clear();
 }
 
 
@@ -175,6 +178,9 @@ Device::AllocateDeviceBuffer
     case BufferType::Uniform:
         bufferInfo.usage |= vk::BufferUsageFlagBits::eUniformBuffer;
         break;
+    case BufferType::Storage:
+        bufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+        break;
     default:
         FATAL_F("Unexpected buffer type");
     }
@@ -195,38 +201,74 @@ Device::AllocateDeviceBuffer
 }
 
 
-#if 0
 //-----------------------------------------------------------------------------
-void CHW::Transfer(
-    HostBuffer* hostBuffer,
-    DeviceBuffer* deviceBuffer,
-    size_t offset /*= 0*/,
-    size_t size /*= 0*/)
+void
+Device::AddTransfer
+        ( BufferPtr const  &cpu_buffer
+        , BufferPtr const  &gpu_buffer
+        , size_t            offset  /*= 0*/
+        , size_t            size    /*= 0*/
+        )
 {
-    const auto& beginInfo = vk::CommandBufferBeginInfo()
+    outstanding_xfers.emplace_back(
+        TransferItem {
+            cpu_buffer.get(),
+            gpu_buffer.get(),
+            offset,
+            size
+        }
+    );
+}
+
+
+//-----------------------------------------------------------------------------
+void
+Device::ProcessTransfer()
+{
+    if (outstanding_xfers.empty())
+    {
+        return;
+    }
+
+    auto const ctxId = State.imageIndex;
+
+    auto const& beginInfo = vk::CommandBufferBeginInfo()
         .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit);
 
-    const auto& region = vk::BufferCopy()
-        .setSrcOffset(offset)
-        .setDstOffset(offset)
-        .setSize(size ? size : deviceBuffer->allocationInfo.size);
-
-    const auto bufferIndex = 0;
-    auto& cmdBuffer = m_XferBuffers[bufferIndex];
-
+    auto &cmdBuffer = xfer_cmdbs_[ctxId];
     cmdBuffer->begin(beginInfo);
-    cmdBuffer->copyBuffer(hostBuffer->buffer, deviceBuffer->buffer, region);
+    {
+        for (auto const& item : outstanding_xfers)
+        {
+            const auto& region = vk::BufferCopy()
+                .setSrcOffset(item.offset)
+                .setDstOffset(item.offset)
+                .setSize(item.size
+                    ? item.size
+                    : item.src->allocation_info.size);
+
+            cmdBuffer->copyBuffer(
+                item.src->buffer,
+                item.dst->buffer,
+                region
+            );
+        }
+    }
     cmdBuffer->end();
 
-    const auto& submitInfo = vk::SubmitInfo()
+    auto const &submitInfo = vk::SubmitInfo()
         .setCommandBufferCount(1)
-        .setPCommandBuffers(&cmdBuffer.get());
+        .setCommandBuffers(std::array{ cmdBuffer.get() });
 
     // TODO: Buffer xfer is sync by now
     m_Queues[QueueType::XFER].submit(submitInfo, {});
     m_Queues[QueueType::XFER].waitIdle();
+
+    outstanding_xfers.clear();
+
+    // TODO: free-up resources if needed
 }
-#endif
+
 
 //-----------------------------------------------------------------------------
 DeviceImage::DeviceImage
@@ -353,4 +395,40 @@ Device::AllocateDeviceImage
     VERIFY(result == VK_SUCCESS);
 
     return image;
+}
+
+
+//-----------------------------------------------------------------------------
+StagedBuffer::StagedBuffer
+        ( size_t        size
+        , BufferType    type
+        )
+    : size_(size)
+{
+    host_buffer_    = device.AllocateHostBuffer(size);
+    device_buffer_  = device.AllocateDeviceBuffer(size, type);
+}
+
+
+//-----------------------------------------------------------------------------
+void
+StagedBuffer::SetName
+        ( std::string const &name
+        )
+{
+    host_buffer_->SetName(name + ":CPU");
+    device_buffer_->SetName(name + ":GPU");
+}
+
+
+//-----------------------------------------------------------------------------
+void
+StagedBuffer::Transfer()
+{
+    device.AddTransfer(
+        host_buffer_,
+        device_buffer_,
+        0,  // offset
+        size_
+    );
 }

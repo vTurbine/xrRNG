@@ -17,6 +17,12 @@ using namespace xrrng;
 
 FrontEnd frontend;
 
+struct InstanceData
+{
+    Fbox    bbox;    // +24 (2 * 3*4)
+    //...
+};
+
 //-----------------------------------------------------------------------------
 void
 FrontEnd::OnDeviceCreate
@@ -32,8 +38,6 @@ FrontEnd::OnDeviceCreate
     scene = std::make_unique<ScenePass>();
 
     frame_datas_.resize(num_frames);
-    menu_cmds_  = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames);
-    scene_cmds_ = device.AllocateCmdBuffers(Device::QueueType::GRAPHICS, num_frames, false); // TODO: seems all need to be recorded in primary buffer because of RPs
 
     for (int i = 0; i < num_frames; ++i)
     {
@@ -50,6 +54,14 @@ FrontEnd::OnDeviceCreate
             ImageType::Depth
         );
         frame_datas_[i].base_depth->SetName("base_depth#" + std::to_string(i));
+
+        instances_data_.emplace_back(
+            StagedBuffer
+            {
+                sizeof(InstanceData) * R_MAX_STATIC_OBJS,
+                BufferType::Storage
+            }
+        ).SetName("instance_data#" + std::to_string(i));
         // ...
     }
 
@@ -191,6 +203,8 @@ FrontEnd::Calculate()
 {
     M_SCOPED;
 
+    auto const ctxId = device.State.imageIndex;
+
     FrameData &fd = frame_datas_[0]; // TODO: take from ctx num
     static IRender_Sector* sector = nullptr;
 
@@ -244,6 +258,16 @@ FrontEnd::Calculate()
                 return f.first > s.first;
             }
         );
+
+        // Fill instance buffer
+        auto *data = static_cast<InstanceData*>(instances_data_[ctxId].GetPointer());
+        for (auto &instance : fd.StaticGeometryList)
+        {
+            data->bbox = instance.second->vis.box;
+            ++data;
+            // TODO: boundaries check
+        }
+        instances_data_[ctxId].Transfer();
     }
 
     // Collect dynamic geometry
@@ -266,18 +290,19 @@ FrontEnd::Render()
 
     auto &cmdL = backend.GetCommandBuffer();
 
+    // Update resources
+    // ...
+
+    // Do streaming
+    // ...
+    device.ProcessTransfer();
+
     // Menu rendering
     if (g_pGamePersistent->IsMainMenuActive())
     {
         menu->Exec(cmdL);
         return;
     }
-
-    // Update resources
-    // ...
-
-    // Do streaming
-    // ...
 
     // Submit list
     // ...

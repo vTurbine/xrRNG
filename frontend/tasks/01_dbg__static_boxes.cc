@@ -36,7 +36,12 @@ Initialize_01()
     box_vertices = device.AllocateDeviceBuffer(verticesSize, BufferType::Vertex);
     box_vertices->SetName("du_box");
 
-    // TODO: setup transfer
+    device.AddTransfer(
+        box_vertices_cpu,
+        box_vertices,
+        0,  // offset
+        verticesSize
+    );
 
     for (int i = 0; i < device.State.colorImages.size(); ++i)
     {
@@ -107,13 +112,13 @@ ScenePass::DebugDrawStaticBboxes
         .setFramebuffer(frame_buffers[i]);
     cmdb.beginRenderPass(passInfo, {});
     {
-        /*
         cmdb.bindVertexBuffers(
             0,      // first binding = the only buffer
             { box_vertices->buffer },
             { 0 }   // offset
         );
 
+        /*
         cmdb.bindDescriptorSets(
             vk::PipelineBindPoint::eGraphics,
             layouts[i],

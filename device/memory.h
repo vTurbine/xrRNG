@@ -9,6 +9,7 @@ enum class BufferType //TODO: replace by VK_BUFFER...
     Vertex,
     Index,
     Uniform,
+    Storage,
     Image
 };
 
@@ -66,5 +67,22 @@ private:
 };
 
 using ImagePtr = std::unique_ptr<DeviceImage>;
+
+
+struct StagedBuffer
+{
+    StagedBuffer(size_t size, BufferType type);
+
+    void *GetPointer() const { return host_buffer_->allocation_info.pMappedData; }
+    void Transfer();
+
+    void SetName(std::string const &name);
+
+private:
+    BufferPtr   host_buffer_;
+    BufferPtr   device_buffer_;
+    size_t      size_;
+};
+
 
 #endif // DEVICE_MEMORY_H_

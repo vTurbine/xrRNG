@@ -12,7 +12,7 @@ struct FrameData
     Fmatrix     mView;
     Fmatrix     mProjection;
 
-    Fvector     vPrevCameraPos;
+    Fvector     vPrevCameraPos; // need to be removed
 
     std::vector<std::pair<float, dxRender_Visual*>> StaticGeometryList;
 

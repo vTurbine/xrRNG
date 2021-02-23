@@ -38,6 +38,9 @@ public:
     BufferPtr AllocateDeviceBuffer(size_t size, BufferType type) const;
     ImagePtr  AllocateDeviceImage(vk::Extent3D const& extent, vk::Format format, ImageType type) const;
 
+    void AddTransfer(BufferPtr const &cpu_buffer, BufferPtr const &gpu_buffer, size_t offset = 0, size_t size = 0);
+    void ProcessTransfer();
+
     // Debug
     void GpuMarkerBegin(vk::CommandBuffer cmdb, std::string const &name, std::array<float, 4> const &color) const;
     void GpuMarkerEnd(vk::CommandBuffer cmdb) const;
@@ -108,11 +111,21 @@ public:
     using QLocation = std::pair<std::optional<uint32_t>, uint32_t>;
     std::array<QLocation, MAX_QUEUES> m_QFamilies;
     std::array<vk::UniqueCommandPool, MAX_QUEUES> m_CmdPools;
+    std::vector<vk::UniqueCommandBuffer>            xfer_cmdbs_;
 
     HWND m_hWnd;
     vk::UniqueSurfaceKHR    m_WsiSurface;
     vk::UniqueSwapchainKHR  m_Swapchain;
     VmaAllocator            allocator_;
+
+    struct TransferItem
+    {
+        DeviceBuffer   *src;
+        DeviceBuffer   *dst;
+        size_t          offset;
+        size_t          size;
+    };
+    std::vector<TransferItem> outstanding_xfers;
 };
 
 extern Device device;
