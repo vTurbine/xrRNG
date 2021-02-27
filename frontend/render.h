@@ -41,7 +41,7 @@ public:
     void AddVisualInstance(dxRender_Visual &vis);
 
     std::vector<FrameData>      frame_datas_;
-    std::vector<StagedBuffer>   instances_data_;
+    std::vector<StagedBuffer>   vis_instances_;
 
     std::unique_ptr<RenderTask> menu;
     std::unique_ptr<RenderTask> scene;

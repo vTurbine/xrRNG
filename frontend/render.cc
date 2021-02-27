@@ -15,13 +15,13 @@
 
 using namespace xrrng;
 
-FrontEnd frontend;
-
-struct InstanceData
+struct VisibilityData
 {
-    Fbox    bbox;    // +24 (2 * 3*4)
-    //...
+    std::uint32_t                                   num;
+    svector<std::uint32_t, R_MAX_STATIC_OBJS>       instances; // a bit wrong but handy
 };
+
+FrontEnd frontend;
 
 //-----------------------------------------------------------------------------
 void
@@ -55,15 +55,23 @@ FrontEnd::OnDeviceCreate
         );
         frame_datas_[i].base_depth->SetName("base_depth#" + std::to_string(i));
 
-        instances_data_.emplace_back(
+        vis_instances_.emplace_back(
             StagedBuffer
             {
-                sizeof(InstanceData) * R_MAX_STATIC_OBJS,
+                sizeof(VisibilityData),
                 BufferType::Storage
             }
-        ).SetName("instance_data#" + std::to_string(i));
+        ).SetName("vis_instances#" + std::to_string(i));
         // ...
     }
+
+    ld.instances_data_ = std::make_unique<StagedBuffer>(
+        StagedBuffer{
+            sizeof(InstanceData) * R_MAX_STATIC_OBJS,
+            BufferType::Storage
+        }
+    );
+    ld.instances_data_->SetName("instances_data");
 
     // Pre-record command buffers
 
@@ -259,15 +267,15 @@ FrontEnd::Calculate()
             }
         );
 
-        // Fill instance buffer
-        auto *data = static_cast<InstanceData*>(instances_data_[ctxId].GetPointer());
+        // Upload PVS data for occ
+        auto *data = static_cast<VisibilityData*>(vis_instances_[ctxId].GetPointer());
+        data->instances.clear();
+        data->num = fd.StaticGeometryList.size();
         for (auto &instance : fd.StaticGeometryList)
         {
-            data->bbox = instance.second->vis.box;
-            ++data;
-            // TODO: boundaries check
+            data->instances.push_back(instance.second->vis_id);
         }
-        instances_data_[ctxId].Transfer();
+        vis_instances_[ctxId].Transfer();
     }
 
     // Collect dynamic geometry

@@ -138,6 +138,7 @@ LegacyInterface::level_Load
             V = model_pool_.Instance_Create(H.type);
             sprintf(name, "vis%03d", index);
             V->Load(name, c, 0);
+            V->vis_id = index;
             ld.visuals.push_back(V);
 
             c->close();
@@ -145,6 +146,18 @@ LegacyInterface::level_Load
         }
         chunk->close();
     }
+
+    // Fill instances buffer
+    R_ASSERT(ld.visuals.size() < R_MAX_STATIC_OBJS);
+    auto *data = static_cast<InstanceData*>(ld.instances_data_->GetPointer());
+    for (auto &instance : ld.visuals)
+    {
+        data->bbox = instance->getVisData().box;
+        //...
+        ++data;
+    }
+    ld.instances_data_->Transfer();
+
 
     // 4. Sectors & portals
     {

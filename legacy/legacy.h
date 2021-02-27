@@ -11,6 +11,8 @@
 #include "legacy/raffle/ModelPool.h"
 #include "legacy/raffle/sector.h"
 
+#include "device/memory.h"
+
 #include <Common/Common.hpp>
 #include <xrEngine/Render.h>
 #include <xrEngine/pure.h>
@@ -32,15 +34,23 @@ size_t GetDeclLength(VertexFormat const* decl);
 
 using LevelData = struct
 {
-    std::vector<std::pair<std::string, std::string>> materials;
-    std::vector<IRenderVisual*> visuals;
-    std::vector<std::unique_ptr<uint8_t[]>> vertices;
-    std::vector<std::unique_ptr<uint8_t[]>> indices;
-    std::vector<FSlideWindowItem> swis;
-    std::vector<std::vector<VertexFormat>> formats;
-    std::vector<std::unique_ptr<IRender_Portal>> portals;
-    std::vector<std::unique_ptr<CSector>> sectors;
-    std::unique_ptr<CDB::MODEL> portals_model;
+    std::vector<std::pair<std::string, std::string>>    materials;
+    std::vector<IRenderVisual*>                         visuals;
+    std::vector<std::unique_ptr<uint8_t[]>>             vertices;
+    std::vector<std::unique_ptr<uint8_t[]>>             indices;
+    std::vector<FSlideWindowItem>                       swis;
+    std::vector<std::vector<VertexFormat>>              formats;
+    std::vector<std::unique_ptr<IRender_Portal>>        portals;
+    std::vector<std::unique_ptr<CSector>>               sectors;
+    std::unique_ptr<CDB::MODEL>                         portals_model;
+
+    std::unique_ptr<StagedBuffer>                       instances_data_;
+};
+
+struct InstanceData
+{
+    Fbox    bbox;    // +24 (2 * 3*4)
+    //...
 };
 
 extern LevelData ld;

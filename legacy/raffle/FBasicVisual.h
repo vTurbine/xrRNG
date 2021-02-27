@@ -61,6 +61,7 @@ public:
     u32 Type; // visual's type
     vis_data vis; // visibility-data
     int shader_id;
+    int vis_id{ -1 };
     std::pair<std::string, std::string> custom_mat{};
 
     virtual void Render(float /*LOD*/) {} // LOD - Level Of Detail  [0..1], Ignored
