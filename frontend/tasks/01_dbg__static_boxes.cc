@@ -22,8 +22,9 @@ BufferPtr                       box_vertices_cpu;
 std::vector<vk::DescriptorSet>  sets;
 std::vector<vk::RenderPass>     passes;
 std::vector<vk::Framebuffer>    frame_buffers;
-std::vector<vk::PipelineLayout> layouts;
-std::vector<vk::Pipeline>       pipelines;
+
+std::vector<vk::UniquePipelineLayout>   layouts;
+std::vector<vk::UniquePipeline>         pipelines;
 }
 
 void
@@ -42,6 +43,81 @@ Initialize_01()
         0,  // offset
         verticesSize
     );
+
+    // shaders
+    auto vsSb = FS.r_open("$game_shaders$", "vk//dummy_box_vs.sb");
+    R_ASSERT(vsSb);
+    auto const vsCodeSize = vsSb->length();
+    std::vector<uint32_t> vsCode(vsCodeSize / 4);
+    vsSb->r(vsCode.data(), vsCodeSize);
+    auto const &vsCreateInfo = vk::ShaderModuleCreateInfo()
+        .setCode(vsCode)
+        .setCodeSize(vsCodeSize);
+    auto vs = device.m_Device->createShaderModuleUnique(vsCreateInfo);
+    auto const &vsStage = vk::PipelineShaderStageCreateInfo()
+        .setModule(vs.get())
+        .setStage(vk::ShaderStageFlagBits::eVertex)
+        .setPName("main_vs");
+    vsSb->close();
+
+    auto psSb = FS.r_open("$game_shaders$", "vk//dummy_box_ps.sb");
+    R_ASSERT(psSb);
+    auto const psCodeSize = psSb->length();
+    std::vector<uint32_t> psCode(psCodeSize / 4);
+    psSb->r(psCode.data(), psCodeSize);
+    auto const &psCreateInfo = vk::ShaderModuleCreateInfo()
+        .setCode(psCode)
+        .setCodeSize(psCodeSize);
+    auto ps = device.m_Device->createShaderModuleUnique(psCreateInfo);
+    auto const &psStage = vk::PipelineShaderStageCreateInfo()
+        .setModule(ps.get())
+        .setStage(vk::ShaderStageFlagBits::eFragment)
+        .setPName("main_ps");
+    psSb->close();
+
+    // fixed functions
+    auto const &vid = vk::VertexInputBindingDescription()
+        .setInputRate(vk::VertexInputRate::eVertex)
+        .setStride(3 * 4);
+    auto const &vad = vk::VertexInputAttributeDescription()
+        .setFormat(vk::Format::eR32G32B32Sfloat);
+
+    auto const &vi = vk::PipelineVertexInputStateCreateInfo()
+        .setVertexBindingDescriptions(std::array{ vid })
+        .setVertexAttributeDescriptions(std::array{ vad });
+    auto const &ia = vk::PipelineInputAssemblyStateCreateInfo()
+        .setTopology(vk::PrimitiveTopology::eTriangleList);
+    auto const &vp = vk::PipelineViewportStateCreateInfo()
+        .setScissors(std::array
+            {
+                vk::Rect2D()
+                    .setExtent(device.swapchain_params_.extent)
+            }
+        )
+        .setViewports(std::array
+            {
+                vk::Viewport()
+                    .setWidth(device.swapchain_params_.extent.width)
+                    .setHeight(device.swapchain_params_.extent.height)
+            }
+        );
+    auto const &rs = vk::PipelineRasterizationStateCreateInfo()
+        .setLineWidth(1.0);
+    auto const &ms = vk::PipelineMultisampleStateCreateInfo();
+    auto const &cba = vk::PipelineColorBlendAttachmentState()
+        .setColorWriteMask(
+            vk::ColorComponentFlagBits::eA |
+            vk::ColorComponentFlagBits::eR |
+            vk::ColorComponentFlagBits::eG |
+            vk::ColorComponentFlagBits::eB
+        );
+    auto const &cb = vk::PipelineColorBlendStateCreateInfo()
+        .setAttachments(std::array{ cba });
+
+    auto const &ds = vk::PipelineDepthStencilStateCreateInfo()
+        .setDepthWriteEnable(true)
+        .setDepthTestEnable(true)
+        .setDepthCompareOp(vk::CompareOp::eGreater); // inverse
 
     for (int i = 0; i < device.State.colorImages.size(); ++i)
     {
@@ -72,14 +148,14 @@ Initialize_01()
             .setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
 
         // subpass
-        const auto& subpassDesc = vk::SubpassDescription()
+        auto const &subpassDesc = vk::SubpassDescription()
             .setPipelineBindPoint(vk::PipelineBindPoint::eGraphics)
             .setColorAttachments(std::array{ refs[0] })
             .setPDepthStencilAttachment(&refs[1]);
 
         // the pass
         {
-            const auto& passCreateInfo = vk::RenderPassCreateInfo()
+            auto const &passCreateInfo = vk::RenderPassCreateInfo()
                 .setAttachments(attachments)
                 .setSubpasses(std::array{ subpassDesc });
 
@@ -88,8 +164,8 @@ Initialize_01()
 
         // framebuffer
         {
-            const auto& depthView = frontend.frame_datas_[i].base_depth->GetView();
-            const auto& fbCreateInfo = vk::FramebufferCreateInfo()
+            auto const &depthView = frontend.frame_datas_[i].base_depth->GetView();
+            auto const &fbCreateInfo = vk::FramebufferCreateInfo()
                 .setRenderPass(passes[i])
                 .setWidth(device.swapchain_params_.extent.width)
                 .setHeight(device.swapchain_params_.extent.height)
@@ -97,6 +173,33 @@ Initialize_01()
                 .setLayers(1);
             frame_buffers.emplace_back(device.m_Device->createFramebuffer(fbCreateInfo));
         }
+    
+        // pipeline layout
+        auto const &pipelineLayoutInfo = vk::PipelineLayoutCreateInfo()
+            .setSetLayoutCount(0)
+            .setPushConstantRangeCount(0);
+        auto const &layout = layouts.emplace_back(
+            device.m_Device->createPipelineLayoutUnique(pipelineLayoutInfo)
+        );
+
+        // pipeline
+        auto const &pipelineInfo = vk::GraphicsPipelineCreateInfo()
+            .setPVertexInputState(&vi)
+            .setPInputAssemblyState(&ia)
+            .setStages(std::array{ vsStage, psStage })
+            .setPViewportState(&vp)
+            .setPRasterizationState(&rs)
+            .setPMultisampleState(&ms)
+            .setPColorBlendState(&cb)
+            .setPDepthStencilState(&ds)
+            .setLayout(layout.get())
+            .setRenderPass(passes[i]);
+        pipelines.push_back(
+            device.m_Device->createGraphicsPipelineUnique(
+                {},  // cache
+                pipelineInfo
+            )
+        );
     }
 }
 
@@ -107,7 +210,7 @@ ScenePass::DebugDrawStaticBboxes
 {
     auto const i = device.State.imageIndex;
 
-    const auto& passInfo = vk::RenderPassBeginInfo()
+    auto const &passInfo = vk::RenderPassBeginInfo()
         .setRenderPass(passes[i])
         .setFramebuffer(frame_buffers[i]);
     cmdb.beginRenderPass(passInfo, {});
@@ -126,19 +229,19 @@ ScenePass::DebugDrawStaticBboxes
             sets,
             {}  // dynamic offsets
         );
+        */
 
         cmdb.bindPipeline(
             vk::PipelineBindPoint::eGraphics,
-            pipelines[i]
+            pipelines[i].get()
         );
 
         cmdb.draw(
             DU_BOX_NUMVERTEX2,
-            1,  // TODO: num static prims
+            1,  //frontend.frame_datas_[0].StaticGeometryList.size(),  // num static prims
             0,  // first vertex
             0   // first instance
         );
-        */
     }
     cmdb.endRenderPass();
 }
